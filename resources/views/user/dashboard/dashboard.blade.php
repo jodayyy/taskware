@@ -7,7 +7,7 @@
 		<link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
 	</head>
 	<body class="bg-white min-h-screen relative">
-		<x-navigation.topbar/>
+		<x-navigation.topbar :user="$user"/>
 		<x-navigation.sidebar/>
 		<x-layout.page-breadcrumb page="Dashboard" :show-home="false" />
 		
@@ -30,5 +30,12 @@
 				</div>
 			</div>
 		</div>
+		
+		@if(isset($is_guest) && $is_guest && isset($guest_id))
+		<script>
+			// Store guest ID in localStorage for persistence
+			localStorage.setItem('taskware_guest_id', '{{ $guest_id }}');
+		</script>
+		@endif
 	</body>
 </html>

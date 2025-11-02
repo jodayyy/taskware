@@ -13,13 +13,23 @@
         
     <!-- Menu Items -->
     <nav class="space-y-2">
-      <a href="{{ route('profile') }}" 
-        class="block w-full text-left px-4 py-3 border border-black hover:bg-black hover:text-white transition-colors">
-        <div class="flex items-center space-x-3">
-          <x-icons.profile />
-          <span>Profile</span>
-        </div>
-      </a>
+      @if(session('is_guest'))
+        <a href="{{ route('guest.profile') }}" 
+          class="block w-full text-left px-4 py-3 border border-black hover:bg-black hover:text-white transition-colors">
+          <div class="flex items-center space-x-3">
+            <x-icons.profile />
+            <span>Profile</span>
+          </div>
+        </a>
+      @else
+        <a href="{{ route('profile') }}" 
+          class="block w-full text-left px-4 py-3 border border-black hover:bg-black hover:text-white transition-colors">
+          <div class="flex items-center space-x-3">
+            <x-icons.profile />
+            <span>Profile</span>
+          </div>
+        </a>
+      @endif
     </nav>
   </div>
 </div>
