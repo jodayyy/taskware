@@ -1,0 +1,83 @@
+*.log
+.DS_Store
+.env
+.env.backup
+.env.production
+.phpactor.json
+.phpunit.result.cache
+/.fleet
+/.idea
+/.nova
+/.phpunit.cache
+/.vscode
+/.zed
+/auth.json
+/node_modules
+/public/build
+/public/hot
+/public/storage
+/storage/*.key
+/storage/pail
+/vendor
+Homestead.json
+Homestead.yaml
+Thumbs.db
+
+# Additional Laravel specific files
+/bootstrap/cache/*
+!/bootstrap/cache/.gitignore
+/storage/app/*
+!/storage/app/.gitignore
+!/storage/app/public/
+!/storage/app/private/
+/storage/framework/cache/*
+!/storage/framework/cache/.gitignore
+!/storage/framework/cache/data/
+/storage/framework/sessions/*
+!/storage/framework/sessions/.gitignore
+/storage/framework/testing/*
+!/storage/framework/testing/.gitignore
+/storage/framework/views/*
+!/storage/framework/views/.gitignore
+/storage/logs/*
+!/storage/logs/.gitignore
+
+# Database files
+*.sqlite
+*.sqlite-journal
+database/*.sqlite
+database/*.sqlite-journal
+
+# Composer generated files
+/vendor/composer/autoload_classmap.php
+/vendor/composer/autoload_static.php
+/vendor/composer/autoload_psr4.php
+
+# IDE and Editor files
+*.swp
+*.swo
+*~
+.project
+.settings/
+.buildpath
+*.sublime-project
+*.sublime-workspace
+
+# OS generated files
+.DS_Store?
+ehthumbs.db
+Icon?
+Thumbs.db
+*.tmp
+
+# NPM/Yarn
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.npm
+.yarn-integrity
+
+# Testing
+coverage/
+.nyc_output
+.coverage
