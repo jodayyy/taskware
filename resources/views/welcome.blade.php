@@ -26,7 +26,7 @@
 				<div class="mt-4">
 					<button 
 						onclick="startGuestSession()" 
-						class="inline-block border-2 border-black text-black py-3 px-8 hover:bg-gray-400 hover:text-white"
+						class="inline-block border-2 border-black text-black py-3 px-8 hover:bg-black hover:text-white"
 					>
 						Continue as Guest
 					</button>
