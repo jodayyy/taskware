@@ -5,6 +5,7 @@ use App\Http\Controllers\AuthController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\GuestController;
+use App\Http\Controllers\TaskController;
 
 // Welcome page
 Route::get('/', function () {
@@ -24,6 +25,13 @@ Route::prefix('guest')->name('guest.')->group(function () {
 	Route::get('/profile', [GuestController::class, 'showProfile'])->name('profile');
 	Route::put('/profile', [GuestController::class, 'updateProfile'])->name('profile.update');
 	Route::post('/logout', [GuestController::class, 'logout'])->name('logout');
+	
+	// Guest task routes
+	Route::get('/tasks', [GuestController::class, 'indexTasks'])->name('tasks.index');
+	Route::post('/tasks', [GuestController::class, 'storeTask'])->name('tasks.store');
+	Route::get('/tasks/{id}', [GuestController::class, 'showTask'])->name('tasks.task-details');
+	Route::put('/tasks/{id}', [GuestController::class, 'updateTask'])->name('tasks.update');
+	Route::delete('/tasks/{id}', [GuestController::class, 'destroyTask'])->name('tasks.destroy');
 });
 
 // Authenticated user routes (requires authentication)
@@ -32,4 +40,11 @@ Route::middleware('auth')->group(function () {
 	Route::get('/profile', [ProfileController::class, 'show'])->name('profile');
 	Route::put('/profile', [ProfileController::class, 'update'])->name('profile.update');
 	Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
+	
+	// Task routes
+	Route::get('/tasks', [TaskController::class, 'index'])->name('tasks.index');
+	Route::post('/tasks', [TaskController::class, 'store'])->name('tasks.store');
+	Route::get('/tasks/{task}', [TaskController::class, 'show'])->name('tasks.task-details');
+	Route::put('/tasks/{task}', [TaskController::class, 'update'])->name('tasks.update');
+	Route::delete('/tasks/{task}', [TaskController::class, 'destroy'])->name('tasks.destroy');
 });

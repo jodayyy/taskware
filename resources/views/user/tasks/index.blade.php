@@ -1,11 +1,16 @@
 @php
+	$isGuest = session('is_guest', false);
+	$dashboardRoute = $isGuest ? route('guest.dashboard') : route('dashboard');
+@endphp
+
+@php
 	$breadcrumbs = [
-		['title' => 'Dashboard', 'url' => null]
+		['title' => 'Tasks', 'url' => null]
 	];
 @endphp
 
 <x-layout.app 
-	title="Dashboard - Taskware" 
+	title="Tasks - Taskware" 
 	:user="$user" 
 	:breadcrumbs="$breadcrumbs"
 	:guest-id="isset($guest_id) ? $guest_id : null"
@@ -15,46 +20,37 @@
 	<x-form.message type="error" :message="session('error')" />
 	
 	<div class="space-y-6">
-		<!-- Header with Quick Add Button -->
+		<!-- Header with Add Task Button -->
 		<div class="flex justify-between items-center">
+			<div>
+				<h1 class="text-2xl font-bold text-primary">All Tasks</h1>
+				<p class="text-primary mt-1">Manage and organize your tasks</p>
+			</div>
 			<button 
 				onclick="openTaskModal()"
 				class="border-2 border-primary px-4 py-2 text-primary hover:bg-secondary hover:text-secondary flex items-center space-x-2"
 			>
 				<x-icons.plus class="w-5 h-5" />
-				<span>Quick Add</span>
+				<span>Add Task</span>
 			</button>
 		</div>
 
-		<!-- Recent Tasks Section -->
+		<!-- Tasks List -->
 		<div class="border-2 border-primary">
 			<div class="p-4 border-b-2 border-primary">
-				<div class="flex justify-between items-center">
-					<h2 class="text-lg font-medium text-primary flex items-center space-x-2">
-						<x-icons.task class="w-5 h-5" />
-						<span>Recent Tasks</span>
-					</h2>
-					@if(isset($tasks) && $tasks->count() > 0)
-						@if(session('is_guest'))
-							<a href="{{ route('guest.tasks.index') }}" class="text-sm text-primary hover:underline">
-								View All Tasks
-							</a>
-						@else
-							<a href="{{ route('tasks.index') }}" class="text-sm text-primary hover:underline">
-								View All Tasks
-							</a>
-						@endif
-					@endif
-				</div>
+				<h2 class="text-lg font-medium text-primary flex items-center space-x-2">
+					<x-icons.task class="w-5 h-5" />
+					<span>Tasks ({{ $tasks->count() }})</span>
+				</h2>
 			</div>
 
 			<div class="p-4">
-				@if(isset($tasks) && $tasks->count() > 0)
+				@if($tasks->count() > 0)
 					<!-- Task List -->
 					<div class="space-y-3">
 						@foreach($tasks as $task)
 							<div class="border border-primary p-2 hover:bg-gray-300 hover:bg-opacity-50 text-primary hover:text-primary cursor-pointer transition-colors"
-								 @if(session('is_guest'))
+								 @if($isGuest)
 									 onclick="location.href='{{ route('guest.tasks.task-details', $task->id) }}'"
 								 @else
 									 onclick="location.href='{{ route('tasks.task-details', $task) }}'"
@@ -93,7 +89,7 @@
 						<div class="text-primary mb-4">
 							<x-icons.task class="mx-auto h-16 w-16" />
 						</div>
-						<h3 class="text-lg font-medium text-primary mb-2">No tasks yet</h3>
+						<h3 class="text-lg font-medium text-primary mb-2">No tasks found</h3>
 						<p class="text-primary mb-4">Create your first task to get started!</p>
 						<button 
 							onclick="openTaskModal()"
@@ -113,7 +109,7 @@
 	<x-slot name="scripts">
 		<script>
 			// Set global variable for guest mode
-			window.isGuest = {{ session('is_guest') ? 'true' : 'false' }};
+			window.isGuest = {{ $isGuest ? 'true' : 'false' }};
 		</script>
 	</x-slot>
 </x-layout.app>

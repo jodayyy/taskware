@@ -1,3 +1,6 @@
+// Import date picker functionality
+import './datepicker.js';
+
 // Theme Toggle Functionality
 window.toggleTheme = function() {
   const body = document.body;

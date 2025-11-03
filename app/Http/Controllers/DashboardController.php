@@ -10,8 +10,12 @@ class DashboardController extends Controller
 {
 	public function index()
 	{
+		$user = Auth::user();
+		$tasks = $user->tasks()->latest()->take(5)->get();
+		
 		return view('user.dashboard.dashboard', [
-			'user' => Auth::user()
+			'user' => $user,
+			'tasks' => $tasks
 		]);
 	}
 }
