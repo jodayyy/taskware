@@ -27,9 +27,9 @@
                 type="checkbox" 
                 id="remember" 
                 name="remember" 
-                class="h-4 w-4 border-black"
+                class="h-4 w-4 border-primary"
             >
-            <label for="remember" class="ml-2 block text-sm text-black">Remember me</label>
+            <label for="remember" class="ml-2 block text-sm text-primary">Remember me</label>
         </div>
 
         <x-form.button type="submit">
@@ -38,13 +38,13 @@
     </form>
 
     <div class="mt-6 text-center">
-        <p class="text-sm text-black">
+        <p class="text-sm text-primary">
             Don't have an account? 
             <a href="{{ route('register') }}" class="underline hover:no-underline">Sign up here</a>
         </p>
     </div>
 
     <div class="mt-4 text-center">
-        <a href="{{ route('welcome') }}" class="text-sm text-black underline hover:no-underline">← Back to Welcome</a>
+        <a href="{{ route('welcome') }}" class="text-sm text-primary underline hover:no-underline">← Back to Welcome</a>
     </div>
 </x-layout.auth>

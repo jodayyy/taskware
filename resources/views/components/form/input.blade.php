@@ -7,12 +7,12 @@
     'required' => false,
     'placeholder' => '',
     'helperText' => '',
-    'class' => 'mt-1 block w-full px-3 py-2 border border-black focus:outline-none'
+    'class' => 'mt-1 block w-full px-3 py-2 border border-primary focus:outline-none'
 ])
 
 <div>
     @if($label)
-        <label for="{{ $id }}" class="block text-sm font-medium text-black">{{ $label }}</label>
+        <label for="{{ $id }}" class="block text-sm font-medium text-primary">{{ $label }}</label>
     @endif
     
     <input 
@@ -26,7 +26,7 @@
     >
     
     @if($helperText)
-        <p class="text-xs text-black mt-1">{{ $helperText }}</p>
+        <p class="text-xs text-primary mt-1">{{ $helperText }}</p>
     @endif
     
     @error($name)

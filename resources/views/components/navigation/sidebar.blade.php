@@ -2,11 +2,11 @@
 <div id="sidebarOverlay" class="fixed inset-0 bg-black bg-opacity-50 z-40 hidden" onclick="closeSidebar()"></div>
 
 <!-- Sidebar -->
-<div id="sidebar" class="fixed top-0 right-0 h-full w-80 bg-white border-l-2 border-black transform translate-x-full transition-transform duration-300 ease-in-out z-50">
+<div id="sidebar" class="fixed top-0 right-0 h-full w-80 bg-primary border-l-2 border-primary transform translate-x-full transition-transform duration-300 ease-in-out z-50">
   <div class="p-6">
     <div class="flex justify-between items-center mb-6">
-      <h3 class="text-lg font-bold text-black">Settings</h3>
-      <button onclick="closeSidebar()" class="text-black hover:text-gray-600">
+      <h3 class="text-lg font-bold text-primary">Settings</h3>
+      <button onclick="closeSidebar()" class="text-primary hover:text-gray-600">
         <x-icons.close />
       </button>
     </div>
@@ -15,7 +15,7 @@
     <nav class="space-y-2">
       @if(session('is_guest'))
         <a href="{{ route('guest.profile') }}" 
-          class="block w-full text-left px-4 py-3 border border-black hover:bg-black hover:text-white transition-colors">
+          class="block w-full text-left px-4 py-3 border border-primary hover:bg-secondary hover:text-secondary transition-colors">
           <div class="flex items-center space-x-3">
             <x-icons.profile />
             <span>Profile</span>
@@ -23,7 +23,7 @@
         </a>
       @else
         <a href="{{ route('profile') }}" 
-          class="block w-full text-left px-4 py-3 border border-black hover:bg-black hover:text-white transition-colors">
+          class="block w-full text-left px-4 py-3 border border-primary hover:bg-secondary hover:text-secondary transition-colors">
           <div class="flex items-center space-x-3">
             <x-icons.profile />
             <span>Profile</span>

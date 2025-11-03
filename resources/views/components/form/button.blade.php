@@ -1,6 +1,6 @@
 @props([
     'type' => 'submit',
-    'class' => 'w-full border-2 border-black text-black py-2 px-4 hover:bg-black hover:text-white',
+    'class' => 'w-full border-2 border-primary text-primary py-2 px-4 hover:bg-secondary hover:text-secondary',
     'disabled' => false
 ])
 

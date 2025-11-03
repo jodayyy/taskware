@@ -5,12 +5,12 @@
     'label' => '',
     'value' => '',
     'required' => false,
-    'class' => 'w-full border-2 border-black px-3 py-2 focus:outline-none focus:border-gray-500'
+    'class' => 'w-full border-2 border-primary px-3 py-2 focus:outline-none focus:border-gray-500'
 ])
 
 <div>
     @if($label)
-        <label for="{{ $id }}" class="block text-sm font-medium text-black mb-2">
+        <label for="{{ $id }}" class="block text-sm font-medium text-primary mb-2">
             {{ $label }}
         </label>
     @endif

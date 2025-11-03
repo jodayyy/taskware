@@ -1,1 +1,25 @@
-/* Add your styles here */
+/* Color System Variables */
+:root {
+  --primary-bg: #ffffff;
+  --secondary-bg: #000000;
+  --primary-text: #000000;
+  --secondary-text: #ffffff;
+  --primary-border: #000000;
+  --secondary-border: #ffffff;
+}
+
+/* Semantic CSS Classes - Remove !important */
+.bg-primary { background-color: var(--primary-bg); }
+.bg-secondary { background-color: var(--secondary-bg); }
+.text-primary { color: var(--primary-text); }
+.text-secondary { color: var(--secondary-text); }
+.border-primary { border-color: var(--primary-border); }
+.border-secondary { border-color: var(--secondary-border); }
+
+/* Hover states - Remove !important */
+.hover\:bg-primary:hover { background-color: var(--primary-bg); }
+.hover\:bg-secondary:hover { background-color: var(--secondary-bg); }
+.hover\:text-primary:hover { color: var(--primary-text); }
+.hover\:text-secondary:hover { color: var(--secondary-text); }
+.hover\:border-primary:hover { border-color: var(--primary-border); }
+.hover\:border-secondary:hover { border-color: var(--secondary-border); }

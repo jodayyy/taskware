@@ -6,7 +6,7 @@
     'guestId' => null
 ])
 
-<x-layout.base :title="$title" body-class="bg-white min-h-screen relative">
+<x-layout.base :title="$title" body-class="bg-primary min-h-screen relative">
     <x-navigation.topbar :user="$user"/>
     <x-navigation.sidebar/>
     

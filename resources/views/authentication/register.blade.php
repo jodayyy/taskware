@@ -37,13 +37,13 @@
     </form>
 
     <div class="mt-6 text-center">
-        <p class="text-sm text-black">
+        <p class="text-sm text-primary">
             Already have an account? 
             <a href="{{ route('login') }}" class="underline hover:no-underline">Login here</a>
         </p>
     </div>
 
     <div class="mt-4 text-center">
-        <a href="{{ route('welcome') }}" class="text-sm text-black underline hover:no-underline">← Back to Welcome</a>
+        <a href="{{ route('welcome') }}" class="text-sm text-primary underline hover:no-underline">← Back to Welcome</a>
     </div>
 </x-layout.auth>
