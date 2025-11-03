@@ -7,7 +7,7 @@
     'required' => false,
     'placeholder' => '',
     'helperText' => '',
-    'class' => 'mt-1 block w-full px-3 py-2 border border-primary focus:outline-none'
+    'class' => 'mt-1 block w-full px-3 py-2 border border-primary bg-primary text-primary focus:outline-none'
 ])
 
 <div>

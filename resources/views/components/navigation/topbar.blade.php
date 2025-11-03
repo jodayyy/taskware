@@ -15,13 +15,13 @@
       <div class="flex items-center space-x-2">
         @if(session('is_guest'))
           <span class="text-primary">{{ $user->username ?? 'Guest' }}</span>
-          <span class="text-xs text-gray-500 bg-gray-200 px-2 py-1 rounded">Guest</span>
+          <span class="text-xs border-2 border-primary bg-primary text-primary px-2 py-1 rounded">Guest</span>
         @else
           <span class="text-primary">{{ Auth::user()->username }}</span>
         @endif
         
         <!-- Settings Button -->
-        <button onclick="toggleSidebar()" class="rounded text-primary p-1 text-sm hover:bg-gray-500 hover:text-secondary">
+        <button onclick="toggleSidebar()" class="rounded text-primary p-1 text-sm hover:bg-secondary hover:text-secondary">
           <x-icons.settings />
         </button>
 

@@ -27,7 +27,7 @@
                 type="checkbox" 
                 id="remember" 
                 name="remember" 
-                class="h-4 w-4 border-primary"
+                class="h-4 w-4 border-primary bg"
             >
             <label for="remember" class="ml-2 block text-sm text-primary">Remember me</label>
         </div>

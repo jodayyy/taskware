@@ -8,6 +8,16 @@
   --secondary-border: #ffffff;
 }
 
+/* Dark mode variables - reversed colors */
+.dark {
+  --primary-bg: #000000;
+  --secondary-bg: #ffffff;
+  --primary-text: #ffffff;
+  --secondary-text: #000000;
+  --primary-border: #ffffff;
+  --secondary-border: #000000;
+}
+
 /* Semantic CSS Classes - Remove !important */
 .bg-primary { background-color: var(--primary-bg); }
 .bg-secondary { background-color: var(--secondary-bg); }
