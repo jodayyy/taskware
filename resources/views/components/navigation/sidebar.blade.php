@@ -5,7 +5,7 @@
 <div id="sidebar" class="fixed top-0 right-0 h-full w-80 bg-primary border-l-2 border-primary transform translate-x-full transition-transform duration-300 ease-in-out z-50">
   <div class="p-6 flex flex-col h-full">
     <div class="flex justify-between items-center mb-6">
-      <h3 class="text-lg font-bold text-primary">Settings</h3>
+      <h3 class="text-lg font-bold text-primary">Menu</h3>
       <button onclick="closeSidebar()" class="text-primary hover:text-gray-600">
         <x-icons.close />
       </button>
@@ -14,27 +14,168 @@
     <!-- Menu Items -->
     <nav class="flex-1 flex flex-col">
       <div class="space-y-2">
-        @if(session('is_guest'))
-          <a href="{{ route('guest.profile') }}" 
-            class="block w-full text-left px-4 py-3 border border-primary text-primary hover:bg-secondary hover:text-secondary transition-colors">
-            <div class="flex items-center space-x-3">
-              <x-icons.profile />
-              <span>Profile</span>
-            </div>
-          </a>
+        @php
+          $currentRoute = request()->route()->getName();
+          $isGuest = session('is_guest', false);
+          
+          // Determine which navigation options to show based on current page
+          $isDashboard = in_array($currentRoute, ['dashboard', 'guest.dashboard']);
+          $isTasksPage = in_array($currentRoute, ['tasks.index', 'tasks.task-details', 'guest.tasks.index', 'guest.tasks.task-details']);
+          $isProfilePage = in_array($currentRoute, ['profile', 'guest.profile']);
+        @endphp
+        
+        @if($isDashboard)
+          {{-- Dashboard page: Show Tasks and Profile Settings --}}
+          @if($isGuest)
+            <a href="{{ route('guest.tasks.index') }}" 
+              class="block w-full text-left px-4 py-3 border border-primary text-primary hover:bg-secondary hover:text-secondary transition-colors">
+              <div class="flex items-center space-x-3">
+                <x-icons.task />
+                <span>Tasks</span>
+              </div>
+            </a>
+            <a href="{{ route('guest.profile') }}" 
+              class="block w-full text-left px-4 py-3 border border-primary text-primary hover:bg-secondary hover:text-secondary transition-colors">
+              <div class="flex items-center space-x-3">
+                <x-icons.profile />
+                <span>Profile Settings</span>
+              </div>
+            </a>
+          @else
+            <a href="{{ route('tasks.index') }}" 
+              class="block w-full text-left px-4 py-3 border border-primary text-primary hover:bg-secondary hover:text-secondary transition-colors">
+              <div class="flex items-center space-x-3">
+                <x-icons.task />
+                <span>Tasks</span>
+              </div>
+            </a>
+            <a href="{{ route('profile') }}" 
+              class="block w-full text-left px-4 py-3 border border-primary text-primary hover:bg-secondary hover:text-secondary transition-colors">
+              <div class="flex items-center space-x-3">
+                <x-icons.profile />
+                <span>Profile Settings</span>
+              </div>
+            </a>
+          @endif
+        @elseif($isTasksPage)
+          {{-- Tasks/Task Details page: Show Dashboard and Profile Settings --}}
+          @if($isGuest)
+            <a href="{{ route('guest.dashboard') }}" 
+              class="block w-full text-left px-4 py-3 border border-primary text-primary hover:bg-secondary hover:text-secondary transition-colors">
+              <div class="flex items-center space-x-3">
+                <x-icons.home />
+                <span>Dashboard</span>
+              </div>
+            </a>
+            <a href="{{ route('guest.profile') }}" 
+              class="block w-full text-left px-4 py-3 border border-primary text-primary hover:bg-secondary hover:text-secondary transition-colors">
+              <div class="flex items-center space-x-3">
+                <x-icons.profile />
+                <span>Profile Settings</span>
+              </div>
+            </a>
+          @else
+            <a href="{{ route('dashboard') }}" 
+              class="block w-full text-left px-4 py-3 border border-primary text-primary hover:bg-secondary hover:text-secondary transition-colors">
+              <div class="flex items-center space-x-3">
+                <x-icons.home />
+                <span>Dashboard</span>
+              </div>
+            </a>
+            <a href="{{ route('profile') }}" 
+              class="block w-full text-left px-4 py-3 border border-primary text-primary hover:bg-secondary hover:text-secondary transition-colors">
+              <div class="flex items-center space-x-3">
+                <x-icons.profile />
+                <span>Profile Settings</span>
+              </div>
+            </a>
+          @endif
+        @elseif($isProfilePage)
+          {{-- Profile Settings page: Show Dashboard and Tasks --}}
+          @if($isGuest)
+            <a href="{{ route('guest.dashboard') }}" 
+              class="block w-full text-left px-4 py-3 border border-primary text-primary hover:bg-secondary hover:text-secondary transition-colors">
+              <div class="flex items-center space-x-3">
+                <x-icons.home />
+                <span>Dashboard</span>
+              </div>
+            </a>
+            <a href="{{ route('guest.tasks.index') }}" 
+              class="block w-full text-left px-4 py-3 border border-primary text-primary hover:bg-secondary hover:text-secondary transition-colors">
+              <div class="flex items-center space-x-3">
+                <x-icons.task />
+                <span>Tasks</span>
+              </div>
+            </a>
+          @else
+            <a href="{{ route('dashboard') }}" 
+              class="block w-full text-left px-4 py-3 border border-primary text-primary hover:bg-secondary hover:text-secondary transition-colors">
+              <div class="flex items-center space-x-3">
+                <x-icons.home />
+                <span>Dashboard</span>
+              </div>
+            </a>
+            <a href="{{ route('tasks.index') }}" 
+              class="block w-full text-left px-4 py-3 border border-primary text-primary hover:bg-secondary hover:text-secondary transition-colors">
+              <div class="flex items-center space-x-3">
+                <x-icons.task />
+                <span>Tasks</span>
+              </div>
+            </a>
+          @endif
         @else
-          <a href="{{ route('profile') }}" 
-            class="block w-full text-left px-4 py-3 border border-primary text-primary hover:bg-secondary hover:text-secondary transition-colors">
-            <div class="flex items-center space-x-3">
-              <x-icons.profile />
-              <span>Profile</span>
-            </div>
-          </a>
+          {{-- Default: Show all navigation options --}}
+          @if($isGuest)
+            <a href="{{ route('guest.dashboard') }}" 
+              class="block w-full text-left px-4 py-3 border border-primary text-primary hover:bg-secondary hover:text-secondary transition-colors">
+              <div class="flex items-center space-x-3">
+                <x-icons.home />
+                <span>Dashboard</span>
+              </div>
+            </a>
+            <a href="{{ route('guest.tasks.index') }}" 
+              class="block w-full text-left px-4 py-3 border border-primary text-primary hover:bg-secondary hover:text-secondary transition-colors">
+              <div class="flex items-center space-x-3">
+                <x-icons.task />
+                <span>Tasks</span>
+              </div>
+            </a>
+            <a href="{{ route('guest.profile') }}" 
+              class="block w-full text-left px-4 py-3 border border-primary text-primary hover:bg-secondary hover:text-secondary transition-colors">
+              <div class="flex items-center space-x-3">
+                <x-icons.profile />
+                <span>Profile Settings</span>
+              </div>
+            </a>
+          @else
+            <a href="{{ route('dashboard') }}" 
+              class="block w-full text-left px-4 py-3 border border-primary text-primary hover:bg-secondary hover:text-secondary transition-colors">
+              <div class="flex items-center space-x-3">
+                <x-icons.home />
+                <span>Dashboard</span>
+              </div>
+            </a>
+            <a href="{{ route('tasks.index') }}" 
+              class="block w-full text-left px-4 py-3 border border-primary text-primary hover:bg-secondary hover:text-secondary transition-colors">
+              <div class="flex items-center space-x-3">
+                <x-icons.task />
+                <span>Tasks</span>
+              </div>
+            </a>
+            <a href="{{ route('profile') }}" 
+              class="block w-full text-left px-4 py-3 border border-primary text-primary hover:bg-secondary hover:text-secondary transition-colors">
+              <div class="flex items-center space-x-3">
+                <x-icons.profile />
+                <span>Profile Settings</span>
+              </div>
+            </a>
+          @endif
         @endif
       </div>
       
-      <!-- Dark Mode Toggle - Fixed at bottom -->
-      <div class="mt-auto">
+      <!-- Fixed Bottom Section -->
+      <div class="mt-auto space-y-2">
+        <!-- Dark Mode Toggle -->
         <div class="px-4 py-3 border border-primary">
           <div class="flex items-center justify-between">
             <span class="text-primary">Theme</span>
@@ -55,6 +196,29 @@
             </div>
           </div>
         </div>
+        
+        <!-- Logout Button -->
+        @if(session('is_guest'))
+          <form method="POST" action="{{ route('guest.logout') }}" class="w-full">
+            @csrf
+            <button type="submit" class="block w-full text-left px-4 py-3 border border-red-500 text-red-500 hover:bg-red-500 hover:text-white transition-colors">
+              <div class="flex items-center space-x-3">
+                <x-icons.logout />
+                <span>Logout</span>
+              </div>
+            </button>
+          </form>
+        @else
+          <form method="POST" action="{{ route('logout') }}" class="w-full">
+            @csrf
+            <button type="submit" class="block w-full text-left px-4 py-3 border border-red-500 text-red-500 hover:bg-red-500 hover:text-white transition-colors">
+              <div class="flex items-center space-x-3">
+                <x-icons.logout />
+                <span>Logout</span>
+              </div>
+            </button>
+          </form>
+        @endif
       </div>
     </nav>
   </div>

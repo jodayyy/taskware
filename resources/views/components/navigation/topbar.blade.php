@@ -12,7 +12,7 @@
         @endif
       </div>
       
-      <div class="flex items-center space-x-2">
+      <div class="flex items-center space-x-4">
         @if(session('is_guest'))
           <span class="text-primary">{{ $user->username ?? 'Guest' }}</span>
           <span class="text-xs border-2 border-primary bg-primary text-primary px-2 py-1 rounded">Guest</span>
@@ -20,26 +20,10 @@
           <span class="text-primary">{{ Auth::user()->username }}</span>
         @endif
         
-        <!-- Settings Button -->
+        <!-- Menu Button -->
         <button onclick="toggleSidebar()" class="rounded text-primary p-1 text-sm hover:bg-secondary hover:text-secondary">
-          <x-icons.settings />
+          <x-icons.menu />
         </button>
-
-        @if(session('is_guest'))
-          <form method="POST" action="{{ route('guest.logout') }}" class="inline">
-            @csrf
-            <button type="submit" class="rounded text-red-500 p-1 text-sm hover:bg-red-500 hover:text-white">
-              <x-icons.logout />
-            </button>
-          </form>
-        @else
-          <form method="POST" action="{{ route('logout') }}" class="inline">
-            @csrf
-            <button type="submit" class="rounded text-red-500 p-1 text-sm hover:bg-red-500 hover:text-white">
-              <x-icons.logout />
-            </button>
-          </form>
-        @endif
       </div>
     </div>
   </div>

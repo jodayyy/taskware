@@ -1,8 +1,13 @@
+@php
+	$breadcrumbs = [
+		['title' => 'Profile Settings', 'url' => null]
+	];
+@endphp
+
 <x-layout.app 
 	title="Profile - Taskware" 
 	:user="$user" 
-	page="Profile Settings" 
-	:show-home="true"
+	:breadcrumbs="$breadcrumbs"
 	:guest-id="isset($guest_id) ? $guest_id : null"
 >
 	<div class="max-w-4xl mx-auto">
