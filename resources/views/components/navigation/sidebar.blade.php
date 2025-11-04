@@ -47,6 +47,8 @@
                   class="rounded-full absolute top-0.5 left-0.5 w-6 h-6 bg-primary border border-primary transition-transform duration-300 ease-in-out flex items-center justify-center">
                   <!-- Icon Container -->
                   <div id="toggleIcon" class="text-primary">
+                    <x-icons.sun class="w-3 h-3 text-background light-icon hidden" />
+                    <x-icons.moon class="w-3 h-3 text-background dark-icon" />
                   </div>
                 </div>
               </button>

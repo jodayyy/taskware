@@ -9,9 +9,16 @@
 		<div class="bg-primary border-2 border-primary w-full max-w-md max-h-full overflow-hidden flex flex-col">
 			<!-- Modal Header -->
 			<div class="flex justify-between items-center p-4 border-b-2 border-primary flex-shrink-0">
-				<h3 class="text-lg font-bold text-primary">
-					{{ $isEdit ? 'Edit Task' : 'Create New Task' }}
-				</h3>
+				<div class="flex items-center space-x-2">
+					@if($isEdit)
+						<x-icons.edit class="w-5 h-5 text-primary" />
+					@else
+						<x-icons.plus class="w-5 h-5 text-primary" />
+					@endif
+					<h3 class="text-lg font-bold text-primary">
+						{{ $isEdit ? 'Edit Task' : 'Create New Task' }}
+					</h3>
+				</div>
 				<button onclick="closeTaskModal()" class="text-primary hover:text-gray-600">
 					<x-icons.close class="w-6 h-6" />
 				</button>
