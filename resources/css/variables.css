@@ -1,0 +1,30 @@
+/* =============================================================================
+   CSS Custom Properties (Variables)
+   ============================================================================= */
+
+/* Base color system - Light mode (default) */
+:root {
+  /* Primary color scheme */
+  --primary-bg: #ffffff;
+  --secondary-bg: #000000;
+  --primary-text: #000000;
+  --secondary-text: #ffffff;
+  --primary-border: #000000;
+  --secondary-border: #ffffff;
+  
+  /* Additional semantic colors for future use */
+  --gray-light: #f3f4f6;
+  --gray-dark: #374151;
+  --gray-text-light: #f9fafb;
+  --gray-text-dark: #111827;
+}
+
+/* Dark mode color scheme - Inverted colors */
+.dark {
+  --primary-bg: #000000;
+  --secondary-bg: #ffffff;
+  --primary-text: #ffffff;
+  --secondary-text: #000000;
+  --primary-border: #ffffff;
+  --secondary-border: #000000;
+}
