@@ -384,13 +384,67 @@
 			const formData = new FormData(this);
 			const submitBtn = this.querySelector('button[type="submit"]');
 			
-			// Convert date format from dd/mm/yyyy to yyyy-mm-dd for server
+			// Client-side validation before submission
+			let hasErrors = false;
+			
+			// Validate title
+			const titleInput = document.getElementById('title');
+			if (!titleInput.value.trim()) {
+				showFieldError('title', 'The title field is required.');
+				hasErrors = true;
+			}
+			
+			// Validate description
+			const descriptionInput = document.getElementById('description');
+			if (!descriptionInput.value.trim()) {
+				showFieldError('description', 'The description field is required.');
+				hasErrors = true;
+			}
+			
+			// Validate deadline
 			const deadlineInput = document.getElementById('deadline');
+			let deadlineValue = '';
 			if (deadlineInput.value) {
 				const parsedDate = DatePicker.parseDate(deadlineInput.value);
 				if (parsedDate) {
-					formData.set('deadline', DatePicker.formatDateForServer(parsedDate));
+					deadlineValue = DatePicker.formatDateForServer(parsedDate);
+					formData.set('deadline', deadlineValue);
+				} else {
+					showFieldError('deadline', 'Please enter a valid date.');
+					hasErrors = true;
 				}
+			} else {
+				showFieldError('deadline', 'The deadline field is required.');
+				hasErrors = true;
+			}
+			
+			// Validate priority
+			const priorityInput = document.getElementById('priority');
+			if (!priorityInput || !priorityInput.value) {
+				showFieldError('priority', 'The priority field is required.');
+				hasErrors = true;
+			} else {
+				// Ensure priority value is in FormData
+				formData.set('priority', priorityInput.value);
+			}
+			
+			// Validate status (only for edit mode)
+			const methodField = this.querySelector('input[name="_method"]');
+			if (methodField && methodField.value === 'PUT') {
+				const statusInput = document.getElementById('status');
+				if (!statusInput || !statusInput.value) {
+					showFieldError('status', 'The status field is required.');
+					hasErrors = true;
+				} else {
+					// Ensure status value is in FormData
+					formData.set('status', statusInput.value);
+				}
+			}
+			
+			if (hasErrors) {
+				submitBtn.disabled = false;
+				submitBtn.textContent = methodField && methodField.value === 'PUT' ? 'Update' : 'Create';
+				return;
 			}
 			
 			// Disable submit button
@@ -408,7 +462,22 @@
 					'Accept': 'application/json'
 				}
 			})
-			.then(response => response.json())
+			.then(response => {
+				// Check if response is OK (200-299)
+				if (response.ok) {
+					return response.json();
+				}
+				
+				// Handle validation errors (422) or other errors
+				if (response.status === 422) {
+					return response.json().then(data => {
+						throw { validation: true, errors: data.errors };
+					});
+				}
+				
+				// Other errors
+				throw new Error(`Server error: ${response.status}`);
+			})
 			.then(data => {
 				if (data.message) {
 					// Success - close modal and reload page
@@ -420,10 +489,13 @@
 				console.error('Error:', error);
 				
 				// Handle validation errors
-				if (error.errors) {
+				if (error.validation && error.errors) {
 					Object.keys(error.errors).forEach(field => {
 						showFieldError(field, error.errors[field][0]);
 					});
+				} else {
+					// Show generic error
+					alert('An error occurred. Please check all required fields and try again.');
 				}
 			})
 			.finally(() => {

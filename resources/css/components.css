@@ -2,28 +2,30 @@
    Component Styles
    ============================================================================= */
 
-/* Custom Select Component Styles */
-.custom-select-option:hover {
-  background-color: var(--secondary-bg);
-  color: var(--secondary-text);
+@layer components {
+  /* Custom Select Component Styles */
+  .custom-select-option:hover {
+    background-color: var(--secondary-bg);
+    color: var(--secondary-text);
+  }
+
+  .custom-select-option.selected {
+    background-color: var(--gray-light);
+    color: var(--gray-text-dark);
+  }
+
+  /* Dark mode override for selected option */
+  .dark .custom-select-option.selected {
+    background-color: var(--gray-dark);
+    color: var(--gray-text-light);
+  }
+
+  /* Form Components */
+  /* Add any future form-specific styling here */
+
+  /* Navigation Components */
+  /* Add any navigation-specific styling here */
+
+  /* Card Components */
+  /* Add any card-specific styling here */
 }
-
-.custom-select-option.selected {
-  background-color: var(--gray-light);
-  color: var(--gray-text-dark);
-}
-
-/* Dark mode override for selected option */
-.dark .custom-select-option.selected {
-  background-color: var(--gray-dark);
-  color: var(--gray-text-light);
-}
-
-/* Form Components */
-/* Add any future form-specific styling here */
-
-/* Navigation Components */
-/* Add any navigation-specific styling here */
-
-/* Card Components */
-/* Add any card-specific styling here */

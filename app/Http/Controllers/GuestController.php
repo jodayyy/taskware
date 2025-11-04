@@ -3,10 +3,13 @@
 namespace App\Http\Controllers;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\StoreGuestTaskRequest;
+use App\Http\Requests\UpdateGuestTaskRequest;
+use App\Enums\TaskStatus;
+use App\Enums\TaskPriority;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Schema;
 use Carbon\Carbon;
 
 class GuestController extends Controller
@@ -19,13 +22,7 @@ class GuestController extends Controller
 		// Check if there's an existing guest ID from browser storage
 		$existingGuestId = $request->input('existing_guest_id');
 		
-		// Create guest tables if they don't exist
-		$this->createGuestTables();
-		
-		// Occasionally clean up old guest users (5% chance)
-		if (rand(1, 100) <= 5) {
-			$this->cleanupOldGuestUsers();
-		}
+        // Guest tables are managed by migrations; no schema work in request path
 		
 		if ($existingGuestId && $this->guestExists($existingGuestId)) {
 			// Resume existing guest session
@@ -76,7 +73,7 @@ class GuestController extends Controller
 			->limit(5)
 			->get();
 			
-		// Convert tasks to objects with necessary properties
+        // Convert tasks to objects with necessary properties
 		$tasks = $tasks->map(function ($task) {
 			return (object) [
 				'id' => $task->id,
@@ -86,13 +83,8 @@ class GuestController extends Controller
 				'priority' => $task->priority,
 				'status' => $task->status,
 				'notes' => $task->notes,
-				'created_at' => \Carbon\Carbon::parse($task->created_at),
-				'status_label' => match($task->status) {
-					'to_do' => 'To Do',
-					'in_progress' => 'In Progress',
-					'done' => 'Done',
-					default => ucfirst($task->status)
-				}
+                'created_at' => \Carbon\Carbon::parse($task->created_at),
+                'status_label' => TaskStatus::from($task->status)->label(),
 			];
 		});
 			
@@ -164,7 +156,7 @@ class GuestController extends Controller
 	/**
 	 * Display tasks for guest user
 	 */
-	public function indexTasks()
+	public function indexTasks(Request $request)
 	{
 		if (!session('is_guest')) {
 			return redirect()->route('welcome');
@@ -175,28 +167,28 @@ class GuestController extends Controller
 		
 		$tasks = DB::connection('guest_sqlite')->table('guest_tasks')
 			->where('guest_id', $guestId)
+			->select(['id','title','status','deadline','priority','created_at'])
 			->orderBy('created_at', 'desc')
-			->get();
+			->paginate(20);
 		
-		// Convert tasks to objects with necessary properties
-		$tasks = $tasks->map(function ($task) {
+		// Map each item to preserve labels and Carbon instances while keeping paginator
+        $tasks->getCollection()->transform(function ($task) {
 			return (object) [
 				'id' => $task->id,
 				'title' => $task->title,
-				'description' => $task->description,
-				'deadline' => \Carbon\Carbon::parse($task->deadline),
+				'description' => null,
+				'deadline' => Carbon::parse($task->deadline),
 				'priority' => $task->priority,
 				'status' => $task->status,
-				'notes' => $task->notes,
-				'created_at' => \Carbon\Carbon::parse($task->created_at),
-				'status_label' => match($task->status) {
-					'to_do' => 'To Do',
-					'in_progress' => 'In Progress',
-					'done' => 'Done',
-					default => ucfirst($task->status)
-				}
+				'notes' => null,
+                'created_at' => Carbon::parse($task->created_at),
+                'status_label' => TaskStatus::from($task->status)->label(),
 			];
 		});
+		
+		if ($request->wantsJson()) {
+			return response()->json($tasks);
+		}
 		
 		return view('user.tasks.index', [
 			'user' => (object) $guestUser,
@@ -209,30 +201,20 @@ class GuestController extends Controller
 	/**
 	 * Store a new task for guest user
 	 */
-	public function storeTask(Request $request)
+	public function storeTask(StoreGuestTaskRequest $request)
 	{
-		if (!session('is_guest')) {
-			return redirect()->route('welcome');
-		}
-			
-		$request->validate([
-			'title' => 'required|string|max:255',
-			'description' => 'required|string',
-			'deadline' => 'required|date',
-			'priority' => 'required|in:low,normal,urgent',
-			'notes' => 'nullable|string',
-		]);
+		$validated = $request->validated();
 			
 		$guestId = session('guest_id');
 			
 		$taskId = DB::connection('guest_sqlite')->table('guest_tasks')->insertGetId([
 			'guest_id' => $guestId,
-			'title' => $request->title,
-			'description' => $request->description,
-			'deadline' => $request->deadline,
-			'priority' => $request->priority,
+			'title' => $validated['title'],
+			'description' => $validated['description'],
+			'deadline' => $validated['deadline'],
+			'priority' => $validated['priority'],
 			'status' => 'to_do',
-			'notes' => $request->notes,
+			'notes' => $validated['notes'] ?? null,
 			'created_at' => now(),
 			'updated_at' => now()
 		]);
@@ -246,11 +228,11 @@ class GuestController extends Controller
 			
 		return redirect()->route('guest.dashboard')->with('success', 'Task created successfully!');
 	}
-
+	
 	/**
 	 * Display a specific task for guest user
 	 */
-	public function showTask($id)
+	public function showTask(Request $request, $id)
 	{
 		if (!session('is_guest')) {
 			return redirect()->route('welcome');
@@ -279,55 +261,48 @@ class GuestController extends Controller
 			'notes' => $task->notes,
 			'created_at' => \Carbon\Carbon::parse($task->created_at),
 			'updated_at' => \Carbon\Carbon::parse($task->updated_at),
-			'priority_label' => ucfirst($task->priority),
-			'status_label' => match($task->status) {
-				'to_do' => 'To Do',
-				'in_progress' => 'In Progress',
-				'done' => 'Done',
-				default => ucfirst($task->status)
-			}
+            'priority_label' => TaskPriority::from($task->priority)->label(),
+            'status_label' => TaskStatus::from($task->status)->label(),
 		];
+		
+		if ($request->wantsJson()) {
+			return response()->json([
+				'task' => $taskObj,
+				'user' => $guestUser
+			]);
+		}
 			
-		return view('user.tasks.task-details', [
+		return view('user.tasks.show', [
 			'user' => (object) $guestUser,
 			'task' => $taskObj,
 			'is_guest' => true,
 			'guest_id' => $guestId
 		]);
 	}
-
+	
 	/**
 	 * Update a task for guest user
 	 */
-	public function updateTask(Request $request, $id)
+	public function updateTask(UpdateGuestTaskRequest $request, $id)
 	{
-		if (!session('is_guest')) {
-			return redirect()->route('welcome');
-		}
-		
-		$request->validate([
-			'title' => 'required|string|max:255',
-			'description' => 'required|string',
-			'deadline' => 'required|date',
-			'priority' => 'required|in:low,normal,urgent',
-			'status' => 'required|in:to_do,in_progress,done',
-			'notes' => 'nullable|string',
-		]);
+		$validated = $request->validated();
 			
 		$guestId = session('guest_id');
 		
-		$updated = DB::connection('guest_sqlite')->table('guest_tasks')
-			->where('id', $id)
-			->where('guest_id', $guestId)
-			->update([
-				'title' => $request->title,
-				'description' => $request->description,
-				'deadline' => $request->deadline,
-				'priority' => $request->priority,
-				'status' => $request->status,
-				'notes' => $request->notes,
-				'updated_at' => now()
-			]);
+		$updated = DB::connection('guest_sqlite')->transaction(function () use ($id, $guestId, $validated) {
+			return DB::connection('guest_sqlite')->table('guest_tasks')
+				->where('id', $id)
+				->where('guest_id', $guestId)
+				->update([
+					'title' => $validated['title'],
+					'description' => $validated['description'],
+					'deadline' => $validated['deadline'],
+					'priority' => $validated['priority'],
+					'status' => $validated['status'],
+					'notes' => $validated['notes'] ?? null,
+					'updated_at' => now()
+				]);
+		});
 		
 		if (!$updated) {
 			abort(404);
@@ -368,36 +343,7 @@ class GuestController extends Controller
 	/**
 	 * Create guest database tables
 	 */
-	private function createGuestTables()
-	{
-		$connection = DB::connection('guest_sqlite');
-		
-		if (!Schema::connection('guest_sqlite')->hasTable('guest_users')) {
-			Schema::connection('guest_sqlite')->create('guest_users', function ($table) {
-				$table->id();
-				$table->string('guest_id')->unique();
-				$table->string('username')->default('Guest');
-				$table->timestamps();
-			});
-		}
-			
-		// Create guest tasks table
-		if (!Schema::connection('guest_sqlite')->hasTable('guest_tasks')) {
-			Schema::connection('guest_sqlite')->create('guest_tasks', function ($table) {
-				$table->id();
-				$table->string('guest_id');
-				$table->string('title');
-				$table->text('description');
-				$table->date('deadline');
-				$table->enum('priority', ['low', 'normal', 'urgent'])->default('normal');
-				$table->enum('status', ['to_do', 'in_progress', 'done'])->default('to_do');
-				$table->text('notes')->nullable();
-				$table->timestamps();
-				
-				$table->index('guest_id');
-			});
-		}
-	}
+    // Schema creation moved to migrations
 	
 	/**
 	 * Create a guest user record
@@ -427,22 +373,10 @@ class GuestController extends Controller
 	 */
 	private function guestExists($guestId)
 	{
-		$this->createGuestTables(); // Ensure tables exist
-		
 		return DB::connection('guest_sqlite')->table('guest_users')
 			->where('guest_id', $guestId)
 			->exists();
 	}
-	
-	/**
-	 * Clean up old guest users (older than 30 days)
-	 */
-	private function cleanupOldGuestUsers()
-	{
-		$thirtyDaysAgo = now()->subDays(30);
-		
-		DB::connection('guest_sqlite')->table('guest_users')
-			->where('updated_at', '<', $thirtyDaysAgo)
-			->delete();
-	}
+    
+    // Cleanup moved to scheduled command
 }

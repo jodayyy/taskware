@@ -57,7 +57,7 @@
 								 @if(session('is_guest'))
 									 onclick="location.href='{{ route('guest.tasks.task-details', $task->id) }}'"
 								 @else
-									 onclick="location.href='{{ route('tasks.task-details', $task) }}'"
+									 onclick="location.href='{{ route('tasks.show', $task) }}'"
 								 @endif>
 								<div class="flex-row md:flex justify-between items-start">
 									<!-- Left Side: Title and Description -->
@@ -77,10 +77,10 @@
 											</span>
 										</span>
 										<span class="px-2 py-1 border border-current">
-											{{ ucfirst($task->priority) }}
+											{{ $task->priority_label }}
 										</span>
 										<span class="px-2 py-1 border border-current">
-											{{ $task->status_label ?? ucfirst($task->status) }}
+											{{ $task->status_label }}
 										</span>
 									</div>
 								</div>

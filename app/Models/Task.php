@@ -2,6 +2,8 @@
 
 namespace App\Models;
 
+use App\Enums\TaskPriority;
+use App\Enums\TaskStatus;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
@@ -29,6 +31,8 @@ class Task extends Model
 	 */
 	protected $casts = [
 		'deadline' => 'date',
+		'status' => TaskStatus::class,
+		'priority' => TaskPriority::class,
 	];
 
 	/**
@@ -44,12 +48,9 @@ class Task extends Model
 	 */
 	public function getStatusLabelAttribute(): string
 	{
-		return match($this->status) {
-			'to_do' => 'To Do',
-			'in_progress' => 'In Progress',
-			'done' => 'Done',
-			default => ucfirst($this->status)
-		};
+		return $this->status instanceof TaskStatus
+			? $this->status->label()
+			: ucfirst((string) $this->status);
 	}
 
 	/**
@@ -57,6 +58,8 @@ class Task extends Model
 	 */
 	public function getPriorityLabelAttribute(): string
 	{
-		return ucfirst($this->priority);
+		return $this->priority instanceof TaskPriority
+			? $this->priority->label()
+			: ucfirst((string) $this->priority);
 	}
 }

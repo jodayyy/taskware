@@ -20,7 +20,7 @@
           
           // Determine which navigation options to show based on current page
           $isDashboard = in_array($currentRoute, ['dashboard', 'guest.dashboard']);
-          $isTasksPage = in_array($currentRoute, ['tasks.index', 'tasks.task-details', 'guest.tasks.index', 'guest.tasks.task-details']);
+          $isTasksPage = in_array($currentRoute, ['tasks.index', 'tasks.show', 'guest.tasks.index', 'guest.tasks.task-details']);
           $isProfilePage = in_array($currentRoute, ['profile', 'guest.profile']);
         @endphp
         

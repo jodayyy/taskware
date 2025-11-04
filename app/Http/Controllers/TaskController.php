@@ -3,6 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\StoreTaskRequest;
+use App\Http\Requests\UpdateTaskRequest;
 use App\Models\Task;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -12,10 +14,17 @@ class TaskController extends Controller
 	/**
 	 * Display a listing of tasks for the authenticated user.
 	 */
-	public function index()
+	public function index(Request $request)
 	{
 		$user = Auth::user();
-		$tasks = $user->tasks()->latest()->get();
+		$tasks = $user->tasks()
+			->select(['id','title','status','deadline','priority','created_at'])
+			->latest()
+			->paginate(20);
+		
+		if ($request->wantsJson()) {
+			return response()->json($tasks);
+		}
 		
 		return view('user.tasks.index', compact('user', 'tasks'));
 	}
@@ -23,23 +32,17 @@ class TaskController extends Controller
 	/**
 	 * Store a newly created task.
 	 */
-	public function store(Request $request)
+	public function store(StoreTaskRequest $request)
 	{
-		$request->validate([
-			'title' => 'required|string|max:255',
-			'description' => 'required|string',
-			'deadline' => 'required|date',
-			'priority' => 'required|in:low,normal,urgent',
-			'notes' => 'nullable|string',
-		]);
+		$validated = $request->validated();
 
 		$task = Auth::user()->tasks()->create([
-			'title' => $request->title,
-			'description' => $request->description,
-			'deadline' => $request->deadline,
-			'priority' => $request->priority,
+			'title' => $validated['title'],
+			'description' => $validated['description'],
+			'deadline' => $validated['deadline'],
+			'priority' => $validated['priority'],
 			'status' => 'to_do',
-			'notes' => $request->notes,
+			'notes' => $validated['notes'] ?? null,
 		]);
 
 		if ($request->wantsJson()) {
@@ -55,43 +58,38 @@ class TaskController extends Controller
 	/**
 	 * Display the specified task.
 	 */
-	public function show(Task $task)
+	public function show(Request $request, Task $task)
 	{
-		// Ensure the task belongs to the authenticated user
-		if ($task->user_id !== Auth::id()) {
-			abort(404);
-		}
+		$this->authorize('view', $task);
 
 		$user = Auth::user();
-		return view('user.tasks.task-details', compact('task', 'user'));
+		
+		if ($request->wantsJson()) {
+			return response()->json([
+				'task' => $task,
+				'user' => $user
+			]);
+		}
+		
+		return view('user.tasks.show', compact('task', 'user'));
 	}
 
 	/**
 	 * Update the specified task.
 	 */
-	public function update(Request $request, Task $task)
+	public function update(UpdateTaskRequest $request, Task $task)
 	{
-		// Ensure the task belongs to the authenticated user
-		if ($task->user_id !== Auth::id()) {
-			abort(404);
-		}
+		$this->authorize('update', $task);
 
-		$request->validate([
-			'title' => 'required|string|max:255',
-			'description' => 'required|string',
-			'deadline' => 'required|date',
-			'priority' => 'required|in:low,normal,urgent',
-			'status' => 'required|in:to_do,in_progress,done',
-			'notes' => 'nullable|string',
-		]);
+		$validated = $request->validated();
 
 		$task->update([
-			'title' => $request->title,
-			'description' => $request->description,
-			'deadline' => $request->deadline,
-			'priority' => $request->priority,
-			'status' => $request->status,
-			'notes' => $request->notes,
+			'title' => $validated['title'],
+			'description' => $validated['description'],
+			'deadline' => $validated['deadline'],
+			'priority' => $validated['priority'],
+			'status' => $validated['status'],
+			'notes' => $validated['notes'] ?? null,
 		]);
 
 		if ($request->wantsJson()) {
@@ -101,7 +99,7 @@ class TaskController extends Controller
 			]);
 		}
 
-		return redirect()->route('tasks.task-details', $task)->with('success', 'Task updated successfully!');
+		return redirect()->route('tasks.show', $task)->with('success', 'Task updated successfully!');
 	}
 
 	/**
@@ -109,10 +107,7 @@ class TaskController extends Controller
 	 */
 	public function destroy(Task $task)
 	{
-		// Ensure the task belongs to the authenticated user
-		if ($task->user_id !== Auth::id()) {
-			abort(404);
-		}
+		$this->authorize('delete', $task);
 
 		$task->delete();
 
