@@ -104,4 +104,3 @@ class TaskRepository implements TaskRepositoryInterface
 		Cache::forget("user.{$userId}.tasks.recent.5");
 	}
 }
-

@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers;
 
+use App\Enums\TaskPriority;
+use App\Enums\TaskStatus;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\StoreGuestProjectRequest;
 use App\Http\Requests\StoreGuestTaskRequest;
@@ -65,13 +67,27 @@ class GuestController extends Controller
 		// Get recent tasks for guest user
 		$tasks = $this->guestTaskRepository->getRecentForGuest($guestId);
 		$projects = $this->guestProjectRepository->getRecentForGuest($guestId);
+		
+		// Calculate statistics
+		$totalProjects = GuestProject::where('guest_id', $guestId)->count();
+		$totalTasks = GuestTask::where('guest_id', $guestId)->count();
+		$inProgressTasks = GuestTask::where('guest_id', $guestId)
+			->where('status', TaskStatus::IN_PROGRESS->value)
+			->count();
+		$urgentTasks = GuestTask::where('guest_id', $guestId)
+			->where('priority', TaskPriority::URGENT->value)
+			->count();
 			
 		return view('user.dashboard.dashboard', [
 			'user' => $guestUser,
 			'tasks' => $tasks,
 			'projects' => $projects,
 			'is_guest' => true,
-			'guest_id' => $guestId
+			'guest_id' => $guestId,
+			'totalProjects' => $totalProjects,
+			'totalTasks' => $totalTasks,
+			'inProgressTasks' => $inProgressTasks,
+			'urgentTasks' => $urgentTasks,
 		]);
 	}
 	

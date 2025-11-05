@@ -157,7 +157,7 @@
 					<!-- Empty State -->
 					<div class="text-center py-8">
 						<div class="text-primary mb-4">
-							<x-icons.task class="mx-auto h-12 w-12" />
+							<x-icons.task class="mx-auto h-16 w-16" />
 						</div>
 						<h3 class="text-lg font-medium text-primary mb-2">No tasks in this project</h3>
 						<p class="text-primary mb-4">Create tasks and assign them to this project!</p>

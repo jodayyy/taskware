@@ -16,6 +16,58 @@
 	
 	<div class="space-y-6">
 
+		<!-- Overview Card -->
+		<div class="border-2 border-primary">
+			<div class="p-2 border-b-2 border-primary">
+				<h2 class="text-lg font-medium text-primary flex items-center space-x-2">
+					<span>Overview</span>
+				</h2>
+			</div>
+			<div class="p-2">
+				<div class="grid grid-cols-2 md:grid-cols-4 justify-between">
+					<!-- Total Projects -->
+					<div class="text-center">
+						<div class="text-lg font-bold text-primary">
+							{{ $totalProjects ?? 0 }}
+						</div>
+						<div class="text-sm text-primary">
+							Total Projects
+						</div>
+					</div>
+					
+					<!-- Total Tasks -->
+					<div class="text-center">
+						<div class="text-lg font-bold text-primary">
+							{{ $totalTasks ?? 0 }}
+						</div>
+						<div class="text-sm text-primary">
+							Total Tasks
+						</div>
+					</div>
+					
+					<!-- In Progress -->
+					<div class="text-center">
+						<div class="text-lg font-bold text-primary">
+							{{ $inProgressTasks ?? 0 }}
+						</div>
+						<div class="text-sm text-primary">
+							In Progress
+						</div>
+					</div>
+					
+					<!-- Urgent Tasks -->
+					<div class="text-center">
+						<div class="text-lg font-bold text-primary">
+							{{ $urgentTasks ?? 0 }}
+						</div>
+						<div class="text-sm text-primary">
+							Urgent Tasks
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+
 		<!-- Recent Tasks Section -->
 		<div class="border-2 border-primary">
 			<div class="p-4 border-b-2 border-primary">
