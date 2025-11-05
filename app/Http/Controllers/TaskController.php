@@ -1,26 +1,36 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Http\Controllers;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\StoreTaskRequest;
 use App\Http\Requests\UpdateTaskRequest;
 use App\Models\Task;
+use App\Repositories\TaskRepositoryInterface;
+use App\Services\TaskService;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\View\View;
 
 class TaskController extends Controller
 {
+	public function __construct(
+		private readonly TaskRepositoryInterface $taskRepository,
+		private readonly TaskService $taskService
+	) {
+	}
+
 	/**
 	 * Display a listing of tasks for the authenticated user.
 	 */
-	public function index(Request $request)
+	public function index(Request $request): View|JsonResponse
 	{
 		$user = Auth::user();
-		$tasks = $user->tasks()
-			->select(['id','title','status','deadline','priority','created_at'])
-			->latest()
-			->paginate(20);
+		$tasks = $this->taskRepository->getForUser($user->id);
 		
 		if ($request->wantsJson()) {
 			return response()->json($tasks);
@@ -32,16 +42,16 @@ class TaskController extends Controller
 	/**
 	 * Store a newly created task.
 	 */
-	public function store(StoreTaskRequest $request)
+	public function store(StoreTaskRequest $request): RedirectResponse|JsonResponse
 	{
 		$validated = $request->validated();
+		$user = Auth::user();
 
-		$task = Auth::user()->tasks()->create([
+		$task = $this->taskService->createForUser($user->id, [
 			'title' => $validated['title'],
 			'description' => $validated['description'],
 			'deadline' => $validated['deadline'],
 			'priority' => $validated['priority'],
-			'status' => 'to_do',
 			'notes' => $validated['notes'] ?? null,
 		]);
 
@@ -58,7 +68,7 @@ class TaskController extends Controller
 	/**
 	 * Display the specified task.
 	 */
-	public function show(Request $request, Task $task)
+	public function show(Request $request, Task $task): View|JsonResponse
 	{
 		$this->authorize('view', $task);
 
@@ -77,13 +87,13 @@ class TaskController extends Controller
 	/**
 	 * Update the specified task.
 	 */
-	public function update(UpdateTaskRequest $request, Task $task)
+	public function update(UpdateTaskRequest $request, Task $task): RedirectResponse|JsonResponse
 	{
 		$this->authorize('update', $task);
 
 		$validated = $request->validated();
 
-		$task->update([
+		$this->taskService->updateTask($task, [
 			'title' => $validated['title'],
 			'description' => $validated['description'],
 			'deadline' => $validated['deadline'],
@@ -91,6 +101,8 @@ class TaskController extends Controller
 			'status' => $validated['status'],
 			'notes' => $validated['notes'] ?? null,
 		]);
+
+		$task->refresh();
 
 		if ($request->wantsJson()) {
 			return response()->json([
@@ -105,11 +117,11 @@ class TaskController extends Controller
 	/**
 	 * Remove the specified task.
 	 */
-	public function destroy(Task $task)
+	public function destroy(Task $task): RedirectResponse
 	{
 		$this->authorize('delete', $task);
 
-		$task->delete();
+		$this->taskRepository->delete($task);
 
 		return redirect()->route('tasks.index')->with('success', 'Task deleted successfully!');
 	}

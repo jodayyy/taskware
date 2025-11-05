@@ -6,20 +6,32 @@ namespace App\Models;
 
 use App\Enums\TaskPriority;
 use App\Enums\TaskStatus;
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
-class Task extends Model
+class GuestTask extends Model
 {
-	use HasFactory;
+	/**
+	 * The connection name for the model.
+	 *
+	 * @var string|null
+	 */
+	protected $connection = 'guest_sqlite';
+
+	/**
+	 * The table associated with the model.
+	 *
+	 * @var string
+	 */
+	protected $table = 'guest_tasks';
+
 	/**
 	 * The attributes that are mass assignable.
 	 *
 	 * @var array<int, string>
 	 */
 	protected $fillable = [
-		'user_id',
+		'guest_id',
 		'title',
 		'description',
 		'deadline',
@@ -40,11 +52,11 @@ class Task extends Model
 	];
 
 	/**
-	 * Get the user that owns the task.
+	 * Get the guest user that owns the task.
 	 */
-	public function user(): BelongsTo
+	public function guestUser(): BelongsTo
 	{
-		return $this->belongsTo(User::class);
+		return $this->belongsTo(GuestUser::class, 'guest_id', 'guest_id');
 	}
 
 	/**
@@ -67,3 +79,4 @@ class Task extends Model
 			: ucfirst((string) $this->priority);
 	}
 }
+

@@ -1,7 +1,13 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Providers;
 
+use App\Repositories\GuestTaskRepository;
+use App\Repositories\GuestTaskRepositoryInterface;
+use App\Repositories\TaskRepository;
+use App\Repositories\TaskRepositoryInterface;
 use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Pagination\Paginator;
 use Illuminate\Support\Facades\RateLimiter;
@@ -14,7 +20,9 @@ class AppServiceProvider extends ServiceProvider
 	 */
 	public function register(): void
 	{
-		//
+		// Bind repository interfaces to implementations
+		$this->app->bind(TaskRepositoryInterface::class, TaskRepository::class);
+		$this->app->bind(GuestTaskRepositoryInterface::class, GuestTaskRepository::class);
 	}
 
 	/**
@@ -27,7 +35,7 @@ class AppServiceProvider extends ServiceProvider
 		RateLimiter::for('login', function ($request) {
 			return [
 				Limit::perMinute(5)->by($request->ip()),
-				Limit::perMinute(5)->by((string) $request->input('email')),
+				Limit::perMinute(5)->by((string) $request->input('username')),
 			];
 		});
 	}

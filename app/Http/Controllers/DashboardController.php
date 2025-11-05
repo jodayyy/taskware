@@ -1,17 +1,25 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Http\Controllers;
 
 use App\Http\Controllers\Controller;
-use Illuminate\Http\Request;
+use App\Repositories\TaskRepositoryInterface;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\View\View;
 
 class DashboardController extends Controller
 {
-	public function index()
+	public function __construct(
+		private readonly TaskRepositoryInterface $taskRepository
+	) {
+	}
+
+	public function index(): View
 	{
 		$user = Auth::user();
-		$tasks = $user->tasks()->latest()->take(5)->get();
+		$tasks = $this->taskRepository->getRecentForUser($user->id);
 		
 		return view('user.dashboard.dashboard', [
 			'user' => $user,

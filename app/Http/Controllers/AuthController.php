@@ -1,27 +1,31 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Http\Controllers;
 
 use App\Http\Controllers\Controller;
 use App\Models\User;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\ValidationException;
+use Illuminate\View\View;
 
 class AuthController extends Controller
 {
-	public function showLogin()
+	public function showLogin(): View
 	{
 		return view('authentication.login');
 	}
 
-	public function showRegister()
+	public function showRegister(): View
 	{
 		return view('authentication.register');
 	}
 
-	public function login(Request $request)
+	public function login(Request $request): RedirectResponse
 	{
 		$request->validate([
 			'username' => 'required|string',
@@ -41,7 +45,7 @@ class AuthController extends Controller
 		]);
 	}
 
-	public function register(Request $request)
+	public function register(Request $request): RedirectResponse
 	{
 		$request->validate([
 			'username' => 'required|string|max:255|unique:users',
@@ -56,7 +60,7 @@ class AuthController extends Controller
 		return redirect()->route('login')->with('success', 'Registration successful! Please login.');
 	}
 
-	public function logout(Request $request)
+	public function logout(Request $request): RedirectResponse
 	{
 		Auth::logout();
 		$request->session()->invalidate();

@@ -1,20 +1,26 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Http\Controllers;
 
 use App\Http\Controllers\Controller;
 use App\Models\User;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\Rule;
+use Illuminate\Validation\ValidationException;
+use Illuminate\View\View;
 
 class ProfileController extends Controller
 {
 	/**
 	 * Display the authenticated user's profile form.
 	 */
-	public function show()
+	public function show(): View
 	{
 		return view('user.settings.profile', [
 			'user' => Auth::user()
@@ -24,7 +30,7 @@ class ProfileController extends Controller
 	/**
 	 * Update the authenticated user's profile information.
 	 */
-	public function update(Request $request)
+	public function update(Request $request): RedirectResponse
 	{
 		$user = Auth::user();
 			
@@ -39,22 +45,25 @@ class ProfileController extends Controller
 			'new_password' => 'nullable|string|min:6|confirmed',
 		]);
 
-		// Update username
-		$user->username = $request->username;
+		// Wrap in transaction for data consistency
+		DB::transaction(function () use ($user, $request) {
+			// Update username
+			$user->username = $request->username;
 
-		// Update password if provided
-		if ($request->filled('new_password')) {
-			// Verify current password
-			if (!Hash::check($request->current_password, $user->password)) {
-				return back()->withErrors([
-					'current_password' => 'The current password is incorrect.'
-				]);
+			// Update password if provided
+			if ($request->filled('new_password')) {
+				// Verify current password
+				if (!Hash::check($request->current_password, $user->password)) {
+					throw ValidationException::withMessages([
+						'current_password' => ['The current password is incorrect.']
+					]);
+				}
+				
+				$user->password = Hash::make($request->new_password);
 			}
-			
-			$user->password = Hash::make($request->new_password);
-		}
 
-		$user->save();
+			$user->save();
+		});
 
 		return back()->with('success', 'Profile updated successfully!');
 	}

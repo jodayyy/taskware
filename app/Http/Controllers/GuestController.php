@@ -1,52 +1,37 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Http\Controllers;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\StoreGuestTaskRequest;
 use App\Http\Requests\UpdateGuestTaskRequest;
-use App\Enums\TaskStatus;
-use App\Enums\TaskPriority;
+use App\Models\GuestTask;
+use App\Models\GuestUser;
+use App\Repositories\GuestTaskRepositoryInterface;
+use App\Services\GuestService;
+use App\Services\TaskService;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Str;
-use Illuminate\Support\Facades\DB;
-use Carbon\Carbon;
+use Illuminate\View\View;
 
 class GuestController extends Controller
 {
+	public function __construct(
+		private readonly GuestService $guestService,
+		private readonly GuestTaskRepositoryInterface $guestTaskRepository,
+		private readonly TaskService $taskService
+	) {
+	}
+
 	/**
 	 * Start a guest session
 	 */
-	public function start(Request $request)
+	public function start(Request $request): RedirectResponse
 	{
-		// Check if there's an existing guest ID from browser storage
-		$existingGuestId = $request->input('existing_guest_id');
-		
-        // Guest tables are managed by migrations; no schema work in request path
-		
-		if ($existingGuestId && $this->guestExists($existingGuestId)) {
-			// Resume existing guest session
-			$guestId = $existingGuestId;
-		} else {
-			// For new guests, check if localStorage provided an ID first
-			if ($existingGuestId) {
-				// If localStorage has an ID but it doesn't exist in DB, recreate it
-				$guestId = $existingGuestId;
-				if (!$this->guestExists($guestId)) {
-					$this->createGuestUser($guestId);
-				}
-			} else {
-				// Create a new guest ID using browser fingerprint for consistency
-				$browserFingerprint = substr(md5($request->userAgent() . '_' . $request->ip()), 0, 16);
-				$guestId = 'guest_' . $browserFingerprint;
-				
-				// Check if this browser already has a guest user, if so reuse it
-				if (!$this->guestExists($guestId)) {
-					// Create a new guest user record
-					$this->createGuestUser($guestId);
-				}
-			}
-		}
+		$guestId = $this->guestService->startSession($request);
 		
 		// Store guest ID in session
 		session(['guest_id' => $guestId, 'is_guest' => true]);
@@ -57,39 +42,24 @@ class GuestController extends Controller
 	/**
 	 * Show guest dashboard
 	 */
-	public function dashboard()
+	public function dashboard(): View|RedirectResponse
 	{
 		if (!session('is_guest')) {
 			return redirect()->route('welcome');
 		}
 			
 		$guestId = session('guest_id');
-		$guestUser = $this->getGuestUser($guestId);
+		$guestUser = $this->guestService->getGuestUser($guestId);
+		
+		if (!$guestUser) {
+			return redirect()->route('welcome');
+		}
 			
 		// Get recent tasks for guest user
-		$tasks = DB::connection('guest_sqlite')->table('guest_tasks')
-			->where('guest_id', $guestId)
-			->orderBy('created_at', 'desc')
-			->limit(5)
-			->get();
-			
-        // Convert tasks to objects with necessary properties
-		$tasks = $tasks->map(function ($task) {
-			return (object) [
-				'id' => $task->id,
-				'title' => $task->title,
-				'description' => $task->description,
-				'deadline' => \Carbon\Carbon::parse($task->deadline),
-				'priority' => $task->priority,
-				'status' => $task->status,
-				'notes' => $task->notes,
-                'created_at' => \Carbon\Carbon::parse($task->created_at),
-                'status_label' => TaskStatus::from($task->status)->label(),
-			];
-		});
+		$tasks = $this->guestTaskRepository->getRecentForGuest($guestId);
 			
 		return view('user.dashboard.dashboard', [
-			'user' => (object) $guestUser,
+			'user' => $guestUser,
 			'tasks' => $tasks,
 			'is_guest' => true,
 			'guest_id' => $guestId
@@ -99,17 +69,21 @@ class GuestController extends Controller
 	/**
 	 * Show guest profile settings
 	 */
-	public function showProfile()
+	public function showProfile(): View|RedirectResponse
 	{
 		if (!session('is_guest')) {
 			return redirect()->route('welcome');
 		}
 			
 		$guestId = session('guest_id');
-		$guestUser = $this->getGuestUser($guestId);
+		$guestUser = $this->guestService->getGuestUser($guestId);
+		
+		if (!$guestUser) {
+			return redirect()->route('welcome');
+		}
 			
 		return view('user.settings.profile', [
-			'user' => (object) $guestUser,
+			'user' => $guestUser,
 			'is_guest' => true,
 			'guest_id' => $guestId
 		]);
@@ -118,7 +92,7 @@ class GuestController extends Controller
 	/**
 	 * Update guest profile
 	 */
-	public function updateProfile(Request $request)
+	public function updateProfile(Request $request): RedirectResponse
 	{
 		if (!session('is_guest')) {
 			return redirect()->route('welcome');
@@ -129,13 +103,15 @@ class GuestController extends Controller
 		]);
 			
 		$guestId = session('guest_id');
+		$guestUser = $this->guestService->getGuestUser($guestId);
 		
-		DB::connection('guest_sqlite')->table('guest_users')
-			->where('guest_id', $guestId)
-			->update([
-				'username' => $request->username,
-				'updated_at' => now()
-			]);
+		if (!$guestUser) {
+			return redirect()->route('welcome');
+		}
+		
+		$guestUser->update([
+			'username' => $request->username,
+		]);
 		
 		return back()->with('success', 'Profile updated successfully!');
 	}
@@ -143,7 +119,7 @@ class GuestController extends Controller
 	/**
 	 * End guest session (but preserve data)
 	 */
-	public function logout(Request $request)
+	public function logout(Request $request): RedirectResponse
 	{
 		// Only clear session data, not the guest user data from database
 		$request->session()->forget(['guest_id', 'is_guest']);
@@ -156,42 +132,27 @@ class GuestController extends Controller
 	/**
 	 * Display tasks for guest user
 	 */
-	public function indexTasks(Request $request)
+	public function indexTasks(Request $request): View|JsonResponse|RedirectResponse
 	{
 		if (!session('is_guest')) {
 			return redirect()->route('welcome');
 		}
 			
 		$guestId = session('guest_id');
-		$guestUser = $this->getGuestUser($guestId);
+		$guestUser = $this->guestService->getGuestUser($guestId);
 		
-		$tasks = DB::connection('guest_sqlite')->table('guest_tasks')
-			->where('guest_id', $guestId)
-			->select(['id','title','status','deadline','priority','created_at'])
-			->orderBy('created_at', 'desc')
-			->paginate(20);
+		if (!$guestUser) {
+			return redirect()->route('welcome');
+		}
 		
-		// Map each item to preserve labels and Carbon instances while keeping paginator
-        $tasks->getCollection()->transform(function ($task) {
-			return (object) [
-				'id' => $task->id,
-				'title' => $task->title,
-				'description' => null,
-				'deadline' => Carbon::parse($task->deadline),
-				'priority' => $task->priority,
-				'status' => $task->status,
-				'notes' => null,
-                'created_at' => Carbon::parse($task->created_at),
-                'status_label' => TaskStatus::from($task->status)->label(),
-			];
-		});
+		$tasks = $this->guestTaskRepository->getForGuest($guestId);
 		
 		if ($request->wantsJson()) {
 			return response()->json($tasks);
 		}
 		
 		return view('user.tasks.index', [
-			'user' => (object) $guestUser,
+			'user' => $guestUser,
 			'tasks' => $tasks,
 			'is_guest' => true,
 			'guest_id' => $guestId
@@ -201,28 +162,29 @@ class GuestController extends Controller
 	/**
 	 * Store a new task for guest user
 	 */
-	public function storeTask(StoreGuestTaskRequest $request)
+	public function storeTask(StoreGuestTaskRequest $request): RedirectResponse|JsonResponse
 	{
 		$validated = $request->validated();
 			
 		$guestId = session('guest_id');
+		$guestUser = $this->guestService->getGuestUser($guestId);
+		
+		if (!$guestUser) {
+			return redirect()->route('welcome');
+		}
 			
-		$taskId = DB::connection('guest_sqlite')->table('guest_tasks')->insertGetId([
-			'guest_id' => $guestId,
+		$task = $this->taskService->createForGuest($guestId, [
 			'title' => $validated['title'],
 			'description' => $validated['description'],
 			'deadline' => $validated['deadline'],
 			'priority' => $validated['priority'],
-			'status' => 'to_do',
 			'notes' => $validated['notes'] ?? null,
-			'created_at' => now(),
-			'updated_at' => now()
 		]);
 			
 		if ($request->wantsJson()) {
 			return response()->json([
 				'message' => 'Task created successfully!',
-				'task_id' => $taskId
+				'task' => $task
 			]);
 		}
 			
@@ -232,49 +194,35 @@ class GuestController extends Controller
 	/**
 	 * Display a specific task for guest user
 	 */
-	public function showTask(Request $request, $id)
+	public function showTask(Request $request, int $id): View|JsonResponse|RedirectResponse
 	{
 		if (!session('is_guest')) {
 			return redirect()->route('welcome');
 		}
 			
 		$guestId = session('guest_id');
-		$guestUser = $this->getGuestUser($guestId);
+		$guestUser = $this->guestService->getGuestUser($guestId);
+		
+		if (!$guestUser) {
+			return redirect()->route('welcome');
+		}
 			
-		$task = DB::connection('guest_sqlite')->table('guest_tasks')
-			->where('id', $id)
-			->where('guest_id', $guestId)
-			->first();
-			
+		$task = $this->guestTaskRepository->findByIdAndGuest($id, $guestId);
+		
 		if (!$task) {
 			abort(404);
 		}
 		
-		// Convert to object with necessary properties for the view
-		$taskObj = (object) [
-			'id' => $task->id,
-			'title' => $task->title,
-			'description' => $task->description,
-			'deadline' => \Carbon\Carbon::parse($task->deadline),
-			'priority' => $task->priority,
-			'status' => $task->status,
-			'notes' => $task->notes,
-			'created_at' => \Carbon\Carbon::parse($task->created_at),
-			'updated_at' => \Carbon\Carbon::parse($task->updated_at),
-            'priority_label' => TaskPriority::from($task->priority)->label(),
-            'status_label' => TaskStatus::from($task->status)->label(),
-		];
-		
 		if ($request->wantsJson()) {
 			return response()->json([
-				'task' => $taskObj,
+				'task' => $task,
 				'user' => $guestUser
 			]);
 		}
 			
 		return view('user.tasks.show', [
-			'user' => (object) $guestUser,
-			'task' => $taskObj,
+			'user' => $guestUser,
+			'task' => $task,
 			'is_guest' => true,
 			'guest_id' => $guestId
 		]);
@@ -283,34 +231,38 @@ class GuestController extends Controller
 	/**
 	 * Update a task for guest user
 	 */
-	public function updateTask(UpdateGuestTaskRequest $request, $id)
+	public function updateTask(UpdateGuestTaskRequest $request, int $id): RedirectResponse|JsonResponse
 	{
 		$validated = $request->validated();
 			
 		$guestId = session('guest_id');
+		$guestUser = $this->guestService->getGuestUser($guestId);
 		
-		$updated = DB::connection('guest_sqlite')->transaction(function () use ($id, $guestId, $validated) {
-			return DB::connection('guest_sqlite')->table('guest_tasks')
-				->where('id', $id)
-				->where('guest_id', $guestId)
-				->update([
-					'title' => $validated['title'],
-					'description' => $validated['description'],
-					'deadline' => $validated['deadline'],
-					'priority' => $validated['priority'],
-					'status' => $validated['status'],
-					'notes' => $validated['notes'] ?? null,
-					'updated_at' => now()
-				]);
-		});
+		if (!$guestUser) {
+			return redirect()->route('welcome');
+		}
 		
-		if (!$updated) {
+		$task = $this->guestTaskRepository->findByIdAndGuest($id, $guestId);
+		
+		if (!$task) {
 			abort(404);
 		}
 		
+		$this->taskService->updateTask($task, [
+			'title' => $validated['title'],
+			'description' => $validated['description'],
+			'deadline' => $validated['deadline'],
+			'priority' => $validated['priority'],
+			'status' => $validated['status'],
+			'notes' => $validated['notes'] ?? null,
+		]);
+		
+		$task->refresh();
+		
 		if ($request->wantsJson()) {
 			return response()->json([
-				'message' => 'Task updated successfully!'
+				'message' => 'Task updated successfully!',
+				'task' => $task
 			]);
 		}
 		
@@ -320,63 +272,27 @@ class GuestController extends Controller
 	/**
 	 * Delete a task for guest user
 	 */
-	public function destroyTask($id)
+	public function destroyTask(int $id): RedirectResponse
 	{
 		if (!session('is_guest')) {
 			return redirect()->route('welcome');
 		}
 		
 		$guestId = session('guest_id');
+		$guestUser = $this->guestService->getGuestUser($guestId);
 		
-		$deleted = DB::connection('guest_sqlite')->table('guest_tasks')
-			->where('id', $id)
-			->where('guest_id', $guestId)
-			->delete();
+		if (!$guestUser) {
+			return redirect()->route('welcome');
+		}
 		
-		if (!$deleted) {
+		$task = $this->guestTaskRepository->findByIdAndGuest($id, $guestId);
+		
+		if (!$task) {
 			abort(404);
 		}
 		
+		$this->guestTaskRepository->delete($task);
+		
 		return redirect()->route('guest.tasks.index')->with('success', 'Task deleted successfully!');
 	}
-	
-	/**
-	 * Create guest database tables
-	 */
-    // Schema creation moved to migrations
-	
-	/**
-	 * Create a guest user record
-	 */
-	private function createGuestUser($guestId)
-	{
-		DB::connection('guest_sqlite')->table('guest_users')->insert([
-			'guest_id' => $guestId,
-			'username' => 'Guest',
-			'created_at' => now(),
-			'updated_at' => now()
-		]);
-	}
-	
-	/**
-	 * Get guest user data
-	 */
-	private function getGuestUser($guestId)
-	{
-		return DB::connection('guest_sqlite')->table('guest_users')
-			->where('guest_id', $guestId)
-			->first();
-	}
-	
-	/**
-	 * Check if guest user exists
-	 */
-	private function guestExists($guestId)
-	{
-		return DB::connection('guest_sqlite')->table('guest_users')
-			->where('guest_id', $guestId)
-			->exists();
-	}
-    
-    // Cleanup moved to scheduled command
 }
