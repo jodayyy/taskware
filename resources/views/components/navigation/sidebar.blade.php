@@ -20,18 +20,26 @@
           
           // Determine which navigation options to show based on current page
           $isDashboard = in_array($currentRoute, ['dashboard', 'guest.dashboard']);
-          $isTasksPage = in_array($currentRoute, ['tasks.index', 'tasks.show', 'guest.tasks.index', 'guest.tasks.task-details']);
+          $isTasksPage = in_array($currentRoute, ['tasks.index', 'tasks.show', 'tasks.create', 'guest.tasks.index', 'guest.tasks.task-details']);
+          $isProjectsPage = in_array($currentRoute, ['projects.index', 'projects.show', 'projects.create', 'guest.projects.index', 'guest.projects.show', 'guest.projects.create']);
           $isProfilePage = in_array($currentRoute, ['profile', 'guest.profile']);
         @endphp
         
         @if($isDashboard)
-          {{-- Dashboard page: Show Tasks and Profile Settings --}}
+          {{-- Dashboard page: Show Tasks, Projects and Profile Settings --}}
           @if($isGuest)
             <a href="{{ route('guest.tasks.index') }}" 
               class="block w-full text-left px-4 py-3 border border-primary text-primary hover:bg-secondary hover:text-secondary transition-colors">
               <div class="flex items-center space-x-3">
                 <x-icons.task />
                 <span>Tasks</span>
+              </div>
+            </a>
+            <a href="{{ route('guest.projects.index') }}" 
+              class="block w-full text-left px-4 py-3 border border-primary text-primary hover:bg-secondary hover:text-secondary transition-colors">
+              <div class="flex items-center space-x-3">
+                <x-icons.project />
+                <span>Projects</span>
               </div>
             </a>
             <a href="{{ route('guest.profile') }}" 
@@ -47,6 +55,13 @@
               <div class="flex items-center space-x-3">
                 <x-icons.task />
                 <span>Tasks</span>
+              </div>
+            </a>
+            <a href="{{ route('projects.index') }}" 
+              class="block w-full text-left px-4 py-3 border border-primary text-primary hover:bg-secondary hover:text-secondary transition-colors">
+              <div class="flex items-center space-x-3">
+                <x-icons.project />
+                <span>Projects</span>
               </div>
             </a>
             <a href="{{ route('profile') }}" 
@@ -58,13 +73,20 @@
             </a>
           @endif
         @elseif($isTasksPage)
-          {{-- Tasks/Task Details page: Show Dashboard and Profile Settings --}}
+          {{-- Tasks/Task Details page: Show Dashboard, Projects and Profile Settings --}}
           @if($isGuest)
             <a href="{{ route('guest.dashboard') }}" 
               class="block w-full text-left px-4 py-3 border border-primary text-primary hover:bg-secondary hover:text-secondary transition-colors">
               <div class="flex items-center space-x-3">
                 <x-icons.home />
                 <span>Dashboard</span>
+              </div>
+            </a>
+            <a href="{{ route('guest.projects.index') }}" 
+              class="block w-full text-left px-4 py-3 border border-primary text-primary hover:bg-secondary hover:text-secondary transition-colors">
+              <div class="flex items-center space-x-3">
+                <x-icons.project />
+                <span>Projects</span>
               </div>
             </a>
             <a href="{{ route('guest.profile') }}" 
@@ -82,6 +104,13 @@
                 <span>Dashboard</span>
               </div>
             </a>
+            <a href="{{ route('projects.index') }}" 
+              class="block w-full text-left px-4 py-3 border border-primary text-primary hover:bg-secondary hover:text-secondary transition-colors">
+              <div class="flex items-center space-x-3">
+                <x-icons.project />
+                <span>Projects</span>
+              </div>
+            </a>
             <a href="{{ route('profile') }}" 
               class="block w-full text-left px-4 py-3 border border-primary text-primary hover:bg-secondary hover:text-secondary transition-colors">
               <div class="flex items-center space-x-3">
@@ -90,8 +119,8 @@
               </div>
             </a>
           @endif
-        @elseif($isProfilePage)
-          {{-- Profile Settings page: Show Dashboard and Tasks --}}
+        @elseif($isProjectsPage)
+          {{-- Projects/Project Details page: Show Dashboard, Tasks and Profile Settings --}}
           @if($isGuest)
             <a href="{{ route('guest.dashboard') }}" 
               class="block w-full text-left px-4 py-3 border border-primary text-primary hover:bg-secondary hover:text-secondary transition-colors">
@@ -107,6 +136,13 @@
                 <span>Tasks</span>
               </div>
             </a>
+            <a href="{{ route('guest.profile') }}" 
+              class="block w-full text-left px-4 py-3 border border-primary text-primary hover:bg-secondary hover:text-secondary transition-colors">
+              <div class="flex items-center space-x-3">
+                <x-icons.profile />
+                <span>Profile Settings</span>
+              </div>
+            </a>
           @else
             <a href="{{ route('dashboard') }}" 
               class="block w-full text-left px-4 py-3 border border-primary text-primary hover:bg-secondary hover:text-secondary transition-colors">
@@ -120,6 +156,60 @@
               <div class="flex items-center space-x-3">
                 <x-icons.task />
                 <span>Tasks</span>
+              </div>
+            </a>
+            <a href="{{ route('profile') }}" 
+              class="block w-full text-left px-4 py-3 border border-primary text-primary hover:bg-secondary hover:text-secondary transition-colors">
+              <div class="flex items-center space-x-3">
+                <x-icons.profile />
+                <span>Profile Settings</span>
+              </div>
+            </a>
+          @endif
+        @elseif($isProfilePage)
+          {{-- Profile Settings page: Show Dashboard, Tasks and Projects --}}
+          @if($isGuest)
+            <a href="{{ route('guest.dashboard') }}" 
+              class="block w-full text-left px-4 py-3 border border-primary text-primary hover:bg-secondary hover:text-secondary transition-colors">
+              <div class="flex items-center space-x-3">
+                <x-icons.home />
+                <span>Dashboard</span>
+              </div>
+            </a>
+            <a href="{{ route('guest.tasks.index') }}" 
+              class="block w-full text-left px-4 py-3 border border-primary text-primary hover:bg-secondary hover:text-secondary transition-colors">
+              <div class="flex items-center space-x-3">
+                <x-icons.task />
+                <span>Tasks</span>
+              </div>
+            </a>
+            <a href="{{ route('guest.projects.index') }}" 
+              class="block w-full text-left px-4 py-3 border border-primary text-primary hover:bg-secondary hover:text-secondary transition-colors">
+              <div class="flex items-center space-x-3">
+                <x-icons.project />
+                <span>Projects</span>
+              </div>
+            </a>
+          @else
+            <a href="{{ route('dashboard') }}" 
+              class="block w-full text-left px-4 py-3 border border-primary text-primary hover:bg-secondary hover:text-secondary transition-colors">
+              <div class="flex items-center space-x-3">
+                <x-icons.home />
+                <span>Dashboard</span>
+              </div>
+            </a>
+            <a href="{{ route('tasks.index') }}" 
+              class="block w-full text-left px-4 py-3 border border-primary text-primary hover:bg-secondary hover:text-secondary transition-colors">
+              <div class="flex items-center space-x-3">
+                <x-icons.task />
+                <span>Tasks</span>
+              </div>
+            </a>
+            <a href="{{ route('projects.index') }}" 
+              class="block w-full text-left px-4 py-3 border border-primary text-primary hover:bg-secondary hover:text-secondary transition-colors">
+              <div class="flex items-center space-x-3">
+                <x-icons.project />
+                <span>Projects</span>
               </div>
             </a>
           @endif
@@ -140,6 +230,13 @@
                 <span>Tasks</span>
               </div>
             </a>
+            <a href="{{ route('guest.projects.index') }}" 
+              class="block w-full text-left px-4 py-3 border border-primary text-primary hover:bg-secondary hover:text-secondary transition-colors">
+              <div class="flex items-center space-x-3">
+                <x-icons.project />
+                <span>Projects</span>
+              </div>
+            </a>
             <a href="{{ route('guest.profile') }}" 
               class="block w-full text-left px-4 py-3 border border-primary text-primary hover:bg-secondary hover:text-secondary transition-colors">
               <div class="flex items-center space-x-3">
@@ -160,6 +257,13 @@
               <div class="flex items-center space-x-3">
                 <x-icons.task />
                 <span>Tasks</span>
+              </div>
+            </a>
+            <a href="{{ route('projects.index') }}" 
+              class="block w-full text-left px-4 py-3 border border-primary text-primary hover:bg-secondary hover:text-secondary transition-colors">
+              <div class="flex items-center space-x-3">
+                <x-icons.project />
+                <span>Projects</span>
               </div>
             </a>
             <a href="{{ route('profile') }}" 

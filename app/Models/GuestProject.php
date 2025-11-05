@@ -5,9 +5,10 @@ declare(strict_types=1);
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
-class GuestUser extends Model
+class GuestProject extends Model
 {
 	/**
 	 * The connection name for the model.
@@ -21,7 +22,7 @@ class GuestUser extends Model
 	 *
 	 * @var string
 	 */
-	protected $table = 'guest_users';
+	protected $table = 'guest_projects';
 
 	/**
 	 * The attributes that are mass assignable.
@@ -30,23 +31,24 @@ class GuestUser extends Model
 	 */
 	protected $fillable = [
 		'guest_id',
-		'username',
+		'title',
+		'description',
 	];
 
 	/**
-	 * Get the tasks for the guest user.
+	 * Get the guest user that owns the project.
 	 */
-	public function tasks(): HasMany
+	public function guestUser(): BelongsTo
 	{
-		return $this->hasMany(GuestTask::class, 'guest_id', 'guest_id');
+		return $this->belongsTo(GuestUser::class, 'guest_id', 'guest_id');
 	}
 
 	/**
-	 * Get the projects for the guest user.
+	 * Get the tasks for the guest project.
 	 */
-	public function projects(): HasMany
+	public function tasks(): HasMany
 	{
-		return $this->hasMany(GuestProject::class, 'guest_id', 'guest_id');
+		return $this->hasMany(GuestTask::class, 'project_id');
 	}
 }
 

@@ -8,6 +8,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\StoreTaskRequest;
 use App\Http\Requests\UpdateTaskRequest;
 use App\Models\Task;
+use App\Repositories\ProjectRepositoryInterface;
 use App\Repositories\TaskRepositoryInterface;
 use App\Services\TaskService;
 use Illuminate\Http\JsonResponse;
@@ -20,8 +21,22 @@ class TaskController extends Controller
 {
 	public function __construct(
 		private readonly TaskRepositoryInterface $taskRepository,
+		private readonly ProjectRepositoryInterface $projectRepository,
 		private readonly TaskService $taskService
 	) {
+	}
+
+	/**
+	 * Show the form for creating a new task.
+	 */
+	public function create(): View
+	{
+		$user = Auth::user();
+		$projects = $this->projectRepository->getForUser($user->id, 1000)->items();
+		return view('user.tasks.create', [
+			'user' => $user,
+			'projects' => collect($projects),
+		]);
 	}
 
 	/**
@@ -53,6 +68,7 @@ class TaskController extends Controller
 			'deadline' => $validated['deadline'],
 			'priority' => $validated['priority'],
 			'notes' => $validated['notes'] ?? null,
+			'project_id' => !empty($validated['project_id']) ? $validated['project_id'] : null,
 		]);
 
 		if ($request->wantsJson()) {
@@ -81,7 +97,12 @@ class TaskController extends Controller
 			]);
 		}
 		
-		return view('user.tasks.show', compact('task', 'user'));
+		$projects = $this->projectRepository->getForUser($user->id, 1000)->items();
+		return view('user.tasks.show', [
+			'task' => $task,
+			'user' => $user,
+			'projects' => collect($projects),
+		]);
 	}
 
 	/**
@@ -100,6 +121,7 @@ class TaskController extends Controller
 			'priority' => $validated['priority'],
 			'status' => $validated['status'],
 			'notes' => $validated['notes'] ?? null,
+			'project_id' => !empty($validated['project_id']) ? $validated['project_id'] : null,
 		]);
 
 		$task->refresh();

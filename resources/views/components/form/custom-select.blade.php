@@ -15,8 +15,13 @@
 		options: @js($options),
 		
 		init() {
-			if (this.selectedValue && this.options[this.selectedValue]) {
-				this.selectedText = this.options[this.selectedValue];
+			// Convert selectedValue to string for comparison
+			const valueStr = String(this.selectedValue);
+			if (valueStr && valueStr !== '' && valueStr !== 'null' && this.options[valueStr]) {
+				this.selectedText = this.options[valueStr];
+			} else if (!valueStr || valueStr === '' || valueStr === 'null') {
+				this.selectedText = this.options[''] || '';
+				this.selectedValue = '';
 			}
 		},
 		
@@ -79,7 +84,7 @@
 			<div 
 				@click="selectOption('{{ $optionValue }}', '{{ $optionText }}')"
 				class="px-3 py-2 cursor-pointer transition-colors duration-150 custom-select-option"
-				:class="{ 'selected': selectedValue === '{{ $optionValue }}' }"
+				:class="{ 'selected': String(selectedValue) === '{{ $optionValue }}' }"
 			>
 				{{ $optionText }}
 			</div>

@@ -147,6 +147,32 @@
 								@enderror
 							</div>
 
+							<!-- Project -->
+							<div>
+								<label for="project_id" class="block text-sm font-medium text-primary mb-2">
+									Project (Optional)
+								</label>
+								@php
+									$projectOptions = ['' => 'No Project'];
+									if (isset($projects) && $projects->isNotEmpty()) {
+										foreach ($projects as $project) {
+											$projectOptions[(string)$project->id] = $project->title;
+										}
+									}
+									$selectedProjectId = old('project_id', $task->project_id ? (string)$task->project_id : '');
+								@endphp
+								<x-form.custom-select 
+									name="project_id"
+									id="project_id"
+									:value="$selectedProjectId"
+									:options="$projectOptions"
+									placeholder="Select Project"
+								/>
+								@error('project_id')
+									<div class="text-red-500 text-sm mt-1">{{ $message }}</div>
+								@enderror
+							</div>
+
 							<!-- Created Date (Read-only) -->
 							<div>
 								<label class="block text-sm font-medium text-primary mb-2">Created</label>

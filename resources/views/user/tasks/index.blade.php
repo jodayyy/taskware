@@ -26,13 +26,13 @@
 				<h1 class="text-2xl font-bold text-primary">All Tasks</h1>
 				<p class="text-primary mt-1">Manage and organize your tasks</p>
 			</div>
-			<button 
-				onclick="openTaskModal()"
+			<a 
+				href="{{ $isGuest ? route('guest.tasks.create') : route('tasks.create') }}"
 				class="border-2 border-primary px-4 py-2 text-primary hover:bg-secondary hover:text-secondary flex items-center space-x-2"
 			>
 				<x-icons.plus class="w-5 h-5" />
-				<span>Add Task</span>
-			</button>
+				<span>Create Task</span>
+			</a>
 		</div>
 
 		<!-- Tasks List -->
@@ -94,25 +94,15 @@
 						</div>
 						<h3 class="text-lg font-medium text-primary mb-2">No tasks found</h3>
 						<p class="text-primary mb-4">Create your first task to get started!</p>
-						<button 
-							onclick="openTaskModal()"
-							class="border-2 border-primary px-6 py-2 text-primary hover:bg-secondary hover:text-secondary"
+						<a 
+							href="{{ $isGuest ? route('guest.tasks.create') : route('tasks.create') }}"
+							class="inline-block border-2 border-primary px-6 py-2 text-primary hover:bg-secondary hover:text-secondary"
 						>
 							Create Your First Task
-						</button>
+						</a>
 					</div>
 				@endif
 			</div>
 		</div>
 	</div>
-
-	<!-- Task Modal -->
-	<x-features.task.task-modal />
-
-	<x-slot name="scripts">
-		<script>
-			// Set global variable for guest mode
-			window.isGuest = {{ $isGuest ? 'true' : 'false' }};
-		</script>
-	</x-slot>
 </x-layout.app>

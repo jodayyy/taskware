@@ -32,6 +32,7 @@ class GuestTask extends Model
 	 */
 	protected $fillable = [
 		'guest_id',
+		'project_id',
 		'title',
 		'description',
 		'deadline',
@@ -57,6 +58,14 @@ class GuestTask extends Model
 	public function guestUser(): BelongsTo
 	{
 		return $this->belongsTo(GuestUser::class, 'guest_id', 'guest_id');
+	}
+
+	/**
+	 * Get the guest project that owns the task.
+	 */
+	public function guestProject(): BelongsTo
+	{
+		return $this->belongsTo(GuestProject::class, 'project_id');
 	}
 
 	/**

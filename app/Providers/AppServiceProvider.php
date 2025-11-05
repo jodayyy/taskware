@@ -4,8 +4,12 @@ declare(strict_types=1);
 
 namespace App\Providers;
 
+use App\Repositories\GuestProjectRepository;
+use App\Repositories\GuestProjectRepositoryInterface;
 use App\Repositories\GuestTaskRepository;
 use App\Repositories\GuestTaskRepositoryInterface;
+use App\Repositories\ProjectRepository;
+use App\Repositories\ProjectRepositoryInterface;
 use App\Repositories\TaskRepository;
 use App\Repositories\TaskRepositoryInterface;
 use Illuminate\Cache\RateLimiting\Limit;
@@ -23,6 +27,8 @@ class AppServiceProvider extends ServiceProvider
 		// Bind repository interfaces to implementations
 		$this->app->bind(TaskRepositoryInterface::class, TaskRepository::class);
 		$this->app->bind(GuestTaskRepositoryInterface::class, GuestTaskRepository::class);
+		$this->app->bind(ProjectRepositoryInterface::class, ProjectRepository::class);
+		$this->app->bind(GuestProjectRepositoryInterface::class, GuestProjectRepository::class);
 	}
 
 	/**

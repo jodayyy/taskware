@@ -5,6 +5,7 @@ use App\Http\Controllers\AuthController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\GuestController;
+use App\Http\Controllers\ProjectController;
 use App\Http\Controllers\TaskController;
 
 // Welcome page
@@ -28,10 +29,19 @@ Route::prefix('guest')->name('guest.')->group(function () {
 	
 	// Guest task routes
 	Route::get('/tasks', [GuestController::class, 'indexTasks'])->name('tasks.index');
+	Route::get('/tasks/create', [GuestController::class, 'createTask'])->name('tasks.create');
 	Route::post('/tasks', [GuestController::class, 'storeTask'])->name('tasks.store');
 	Route::get('/tasks/{id}', [GuestController::class, 'showTask'])->name('tasks.task-details');
 	Route::put('/tasks/{id}', [GuestController::class, 'updateTask'])->name('tasks.update');
 	Route::delete('/tasks/{id}', [GuestController::class, 'destroyTask'])->name('tasks.destroy');
+	
+	// Guest project routes
+	Route::get('/projects', [GuestController::class, 'indexProjects'])->name('projects.index');
+	Route::get('/projects/create', [GuestController::class, 'createProject'])->name('projects.create');
+	Route::post('/projects', [GuestController::class, 'storeProject'])->name('projects.store');
+	Route::get('/projects/{id}', [GuestController::class, 'showProject'])->name('projects.show');
+	Route::put('/projects/{id}', [GuestController::class, 'updateProject'])->name('projects.update');
+	Route::delete('/projects/{id}', [GuestController::class, 'destroyProject'])->name('projects.destroy');
 });
 
 // Authenticated user routes (requires authentication)
@@ -43,4 +53,7 @@ Route::middleware('auth')->group(function () {
 	
 	// Task routes
 	Route::resource('tasks', TaskController::class);
+	
+	// Project routes
+	Route::resource('projects', ProjectController::class);
 });
