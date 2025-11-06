@@ -77,7 +77,7 @@
 		x-transition:leave-start="transform opacity-100 scale-100"
 		x-transition:leave-end="transform opacity-0 scale-95"
 		@click.outside="closeDropdown()"
-		class="absolute z-50 w-full mt-1 bg-primary border-2 border-primary shadow-lg max-h-60 overflow-auto"
+		class="absolute z-50 w-full mt-1 bg-primary border-2 border-primary text-primary shadow-lg max-h-60 overflow-auto"
 		style="display: none;"
 	>
 		@foreach($options as $optionValue => $optionText)

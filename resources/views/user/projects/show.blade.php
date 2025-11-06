@@ -22,19 +22,19 @@
 	<div class="max-w-4xl mx-auto space-y-4">
 		<!-- Project Header -->
 		<div class="border-2 border-primary">
-			<div class="p-2 border-b-2 border-primary">
+			<div class="px-3 pb-2 pt-1 border-b-2 border-primary bg-header">
 				<h1 class="text-2xl font-bold text-primary">{{ $project->title }}</h1>
 			</div>
 
 			<!-- Project Details Section -->
-			<div class="p-2">
-				<form method="POST" action="{{ $updateRoute }}" class="space-y-2">
+			<div class="p-3">
+				<form method="POST" action="{{ $updateRoute }}">
 					@csrf
 					@method('PUT')
 
 					<!-- Title -->
 					<div>
-						<label for="title" class="block text-lg font-medium text-primary mb-3">
+						<label for="title" class="block text-lg font-medium text-primary mb-2">
 							Title <span class="text-red-500">*</span>
 						</label>
 						<input 
@@ -53,7 +53,7 @@
 
 					<!-- Description -->
 					<div>
-						<label for="description" class="block text-lg font-medium text-primary mb-3">
+						<label for="description" class="block text-lg font-medium text-primary mb-2 mt-3">
 							Description <span class="text-red-500">*</span>
 						</label>
 						<textarea 
@@ -71,14 +71,14 @@
 
 					<!-- Created Date (Read-only) -->
 					<div>
-						<label class="block text-sm font-medium text-primary mb-2">Created</label>
-						<div class="border border-primary px-3 py-2 bg-gray-50 text-primary">
+						<label class="block text-md font-medium text-primary my-2">Created</label>
+						<div class="border border-primary px-3 py-2 bg-primary text-primary">
 							{{ $project->created_at->format('M j, Y g:i A') }}
 						</div>
 					</div>
 
 					<!-- Form Actions -->
-					<div class="flex justify-between space-x-3 pt-4 border-primary">
+					<div class="flex justify-between space-x-3 mt-6 border-primary">
 						<a 
 							href="{{ $indexRoute }}" 
 							class="border-2 border-primary px-4 py-2 text-primary hover:bg-secondary hover:text-secondary"
@@ -107,14 +107,14 @@
 
 		<!-- Project Tasks Section -->
 		<div class="border-2 border-primary">
-			<div class="p-2 border-b-2 border-primary">
+			<div class="px-2 py-1 border-b-2 border-primary bg-header">
 				<h2 class="text-lg font-medium text-primary flex items-center space-x-2">
 					<x-icons.task class="w-5 h-5" />
 					<span>Tasks ({{ $project->tasks->count() }})</span>
 				</h2>
 			</div>
 
-			<div class="p-2">
+			<div class="p-3">
 				@if($project->tasks->count() > 0)
 					<!-- Task List -->
 					<div class="space-y-3">
@@ -131,7 +131,7 @@
 										<h3 class="font-medium mb-1">{{ $task->title }}</h3>
 									</div>
 									<!-- Right Side: Due Date, Priority, Status -->
-									<div class="flex items-center space-x-4 text-xs">
+									<div class="flex items-center space-x-2 text-xs">
 										<span class="flex items-center space-x-1">
 											<span>Due:</span>
 											<span class="font-medium">
@@ -175,7 +175,7 @@
 
 	<!-- Delete Confirmation Modal -->
 	<div id="deleteModal" class="fixed inset-0 bg-black bg-opacity-50 z-50 hidden">
-		<div class="flex items-center justify-center min-h-screen p-2">
+		<div class="flex items-center justify-center min-h-screen p-3">
 			<div class="bg-primary border-2 border-primary w-full max-w-md">
 				<div class="p-6">
 					<div class="flex items-center mb-4">

@@ -274,7 +274,7 @@ window.DatePicker = {
 			const monthElement = document.createElement('button');
 			monthElement.type = 'button';
 			monthElement.textContent = month;
-			monthElement.className = 'p-2 text-sm text-primary hover:bg-secondary hover:text-secondary rounded transition-colors';
+			monthElement.className = 'p-3 text-sm text-primary hover:bg-secondary hover:text-secondary rounded transition-colors';
 			
 			// Highlight current month
 			if (index === instance.currentDate.getMonth()) {
@@ -309,7 +309,7 @@ window.DatePicker = {
 			const yearElement = document.createElement('button');
 			yearElement.type = 'button';
 			yearElement.textContent = year;
-			yearElement.className = 'p-2 text-sm text-primary hover:bg-secondary hover:text-secondary rounded transition-colors';
+			yearElement.className = 'p-3 text-sm text-primary hover:bg-secondary hover:text-secondary rounded transition-colors';
 			
 			// Highlight current year
 			if (year === currentYear) {

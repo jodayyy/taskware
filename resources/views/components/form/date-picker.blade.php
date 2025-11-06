@@ -47,7 +47,7 @@
 	<div id="{{ $pickerId }}_error" class="text-red-500 text-sm mt-1 hidden"></div>
 	
 	<!-- Date Picker Popup -->
-	<div id="{{ $pickerId }}" class="date-picker-popup fixed inset-0 bg-black bg-opacity-50 z-50 hidden flex items-center justify-center p-2">
+	<div id="{{ $pickerId }}" class="date-picker-popup fixed inset-0 bg-black bg-opacity-50 z-50 hidden flex items-center justify-center p-3">
 		<div class="date-picker-content bg-primary border-2 border-primary w-full max-w-xs mx-auto shadow-xl">
 			<!-- Header -->
 			<div class="flex justify-between items-center p-3 border-b-2 border-primary">

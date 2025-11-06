@@ -17,16 +17,16 @@
 	<x-form.message type="success" :message="session('success')" />
 	<x-form.message type="error" :message="session('error')" />
 	
-	<div class="space-y-6">
+	<div class="space-y-3">
 		<!-- Header with Add Project Button -->
-		<div class="flex justify-between items-center">
+		<div class="flex flex-col md:flex-row md:justify-between md:items-center space-y-2 md:space-y-0">
 			<div>
 				<h1 class="text-2xl font-bold text-primary">All Projects</h1>
 				<p class="text-primary mt-1">Manage and organize your projects</p>
 			</div>
 			<a 
 				href="{{ $createRoute }}"
-				class="border-2 border-primary px-4 py-2 text-primary hover:bg-secondary hover:text-secondary flex items-center space-x-2"
+				class="border-2 border-primary px-2 py-2 text-primary hover:bg-secondary hover:text-secondary flex items-center space-x-1"
 			>
 				<x-icons.plus class="w-5 h-5" />
 				<span>Create Project</span>
@@ -35,19 +35,19 @@
 
 		<!-- Projects List -->
 		<div class="border-2 border-primary">
-			<div class="p-2 border-b-2 border-primary flex justify-between items-center">
+			<div class="p-2 border-b-2 border-primary flex flex-col md:flex-row md:justify-between md:items-center space-y-2 md:space-y-0">
 				<h2 class="text-lg font-medium text-primary flex items-center space-x-2">
 					<x-icons.project class="w-5 h-5" />
 					<span>Projects ({{ $projects->count() }})</span>
 				</h2>
 				@if($projects->count() > 0)
-					<div class="flex items-center space-x-2">
+					<div class="flex items-center space-x-2 flex-wrap">
 						<!-- Delete Multiple Button (shown by default) -->
 						<button 
 							type="button"
 							id="toggleDeleteModeBtn"
 							onclick="toggleDeleteMode()"
-							class="border-2 border-primary px-4 py-2 text-primary hover:bg-secondary hover:text-secondary text-sm flex items-center space-x-2"
+							class="border-2 border-primary p-2 text-primary hover:bg-secondary hover:text-secondary text-sm flex items-center space-x-2"
 						>
 							<x-icons.delete class="w-4 h-4" />
 							<span>Delete Multiple</span>
@@ -67,7 +67,7 @@
 								type="button"
 								id="multipleDeleteProjectsBtn"
 								onclick="multipleDeleteProjects()"
-								class="border-2 border-red-500 px-4 py-2 text-red-500 hover:bg-red-500 hover:text-white text-sm disabled:opacity-50 disabled:cursor-not-allowed"
+								class="border-2 border-red-500 p-2 text-red-500 hover:bg-red-500 hover:text-white text-sm disabled:opacity-50 disabled:cursor-not-allowed"
 								disabled
 							>
 								Delete Selected
@@ -75,7 +75,7 @@
 							<button 
 								type="button"
 								onclick="cancelDeleteMode()"
-								class="border-2 border-primary px-4 py-2 text-primary hover:bg-secondary hover:text-secondary text-sm"
+								class="border-2 border-primary p-2 text-primary hover:bg-secondary hover:text-secondary text-sm"
 							>
 								Cancel
 							</button>
@@ -84,22 +84,22 @@
 				@endif
 			</div>
 
-			<div class="p-2">
+			<div class="px-2 pt-2">
 				@if($projects->count() > 0)
 					<form id="multipleDeleteProjectsForm" method="POST" action="{{ $isGuest ? route('guest.projects.multiple-destroy') : route('projects.multiple-destroy') }}">
 						@csrf
 						@method('DELETE')
 						<!-- Project List -->
-						<div class="space-y-3">
+						<div class="space-y-2">
 							@foreach($projects as $project)
-								<div class="border border-primary p-2 hover:bg-gray-300 hover:bg-opacity-50 text-primary hover:text-primary transition-colors">
-									<div class="flex-row md:flex justify-between items-start">
-										<div class="flex items-start space-x-2 flex-1">
+								<div class="border border-primary hover:bg-gray-300 hover:bg-opacity-50 text-primary hover:text-primary transition-colors">
+									<div class="flex-row md:flex justify-between items-start px-2 pb-1.5 pt-1">
+										<div class="flex items-start flex-1">
 											<input 
 												type="checkbox" 
 												name="ids[]" 
 												value="{{ $project->id }}"
-												class="project-checkbox w-4 h-4 border-primary text-primary focus:ring-primary mt-1 cursor-pointer hidden"
+												class="project-checkbox w-4 h-4 border-primary text-primary focus:ring-primary mt-1 mr-2 cursor-pointer hidden"
 												onchange="updateMultipleDeleteProjectsButton()"
 												onclick="event.stopPropagation()"
 											>
@@ -107,11 +107,11 @@
 												class="flex-1 cursor-pointer"
 												onclick="location.href='{{ $isGuest ? route('guest.projects.show', $project->id) : route('projects.show', $project) }}'"
 											>
-												<h3 class="font-medium mb-1">{{ $project->title }}</h3>
+												<h3 class="font-medium">{{ $project->title }}</h3>
 											</div>
 										</div>
 										<!-- Right Side: Created Date -->
-										<div class="flex items-center space-x-4 text-xs">
+										<div class="flex items-center space-x-4 text-xs pt-1">
 											<span class="flex items-center space-x-1">
 												<span>Created:</span>
 												<span class="font-medium">
@@ -124,7 +124,7 @@
 							@endforeach
 						</div>
 					</form>
-                    <div class="pt-2">
+                    <div class="py-2">
                         {{ $projects->links() }}
                     </div>
 				@else
@@ -149,7 +149,7 @@
 
 	<!-- Multiple Delete Confirmation Modal -->
 	<div id="multipleDeleteProjectsModal" class="fixed inset-0 bg-black bg-opacity-50 z-50 hidden">
-		<div class="flex items-center justify-center min-h-screen p-2">
+		<div class="flex items-center justify-center min-h-screen p-3">
 			<div class="bg-primary border-2 border-primary w-full max-w-md">
 				<div class="p-6">
 					<div class="flex items-center mb-4">

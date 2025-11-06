@@ -14,19 +14,19 @@
 	<x-form.message type="success" :message="session('success')" />
 	<x-form.message type="error" :message="session('error')" />
 	
-	<div class="space-y-2">
+	<div class="space-y-4">
 		<!-- Overview Card -->
 		<div class="border-2 border-primary">
-			<div class="p-2 border-b-2 border-primary">
+			<div class="px-1 border-b-2 border-primary bg-header">
 				<h2 class="text-lg font-medium text-primary flex items-center space-x-2">
 					<span>Overview</span>
 				</h2>
 			</div>
-			<div class="p-2">
+			<div class="p-1">
 				<div class="grid grid-cols-2 md:grid-cols-4 justify-between">
 					<!-- Total Projects -->
 					<div class="text-center">
-						<div class="text-lg font-bold text-primary">
+						<div class="text-md font-bold text-primary">
 							{{ $totalProjects ?? 0 }}
 						</div>
 						<div class="text-sm text-primary">
@@ -36,7 +36,7 @@
 					
 					<!-- Total Tasks -->
 					<div class="text-center">
-						<div class="text-lg font-bold text-primary">
+						<div class="text-md font-bold text-primary">
 							{{ $totalTasks ?? 0 }}
 						</div>
 						<div class="text-sm text-primary">
@@ -46,7 +46,7 @@
 					
 					<!-- In Progress -->
 					<div class="text-center">
-						<div class="text-lg font-bold text-primary">
+						<div class="text-md font-bold text-primary">
 							{{ $inProgressTasks ?? 0 }}
 						</div>
 						<div class="text-sm text-primary">
@@ -56,7 +56,7 @@
 					
 					<!-- Urgent Tasks -->
 					<div class="text-center">
-						<div class="text-lg font-bold text-primary">
+						<div class="text-md font-bold text-primary">
 							{{ $urgentTasks ?? 0 }}
 						</div>
 						<div class="text-sm text-primary">
@@ -69,7 +69,7 @@
 
 		<!-- Quick Actions -->
 		<div class="border-2 border-primary">
-			<div class="p-2 border-b-2 border-primary">
+			<div class="px-1 border-b-2 border-primary bg-header">
 				<h2 class="text-lg font-medium text-primary flex items-center space-x-2">
 					<span>Quick Actions</span>
 				</h2>
@@ -79,63 +79,52 @@
 					<!-- Create Project -->
 					<a 
 						href="{{ session('is_guest') ? route('guest.projects.create') : route('projects.create') }}"
-						class="flex items-center justify-center p-2 border-2 border-primary text-primary hover:bg-secondary hover:text-secondary transition-colors"
+						class="flex items-center justify-center py-1.5 border-2 border-primary text-primary hover:bg-secondary hover:text-secondary transition-colors"
 					>
 						<x-icons.plus class="w-6 h-6" />
-						<span class="text-sm font-medium text-center">Create Project</span>
+						<span class="text-sm text-center">Create Project</span>
 					</a>
 
 					<!-- Create Task -->
 					<a 
 						href="{{ session('is_guest') ? route('guest.tasks.create') : route('tasks.create') }}"
-						class="flex items-center justify-center p-2 border-2 border-primary text-primary hover:bg-secondary hover:text-secondary transition-colors"
+						class="flex items-center justify-center py-1.5 border-2 border-primary text-primary hover:bg-secondary hover:text-secondary transition-colors"
 					>
 						<x-icons.plus class="w-6 h-6" />
-						<span class="text-sm font-medium text-center">Create Task</span>
+						<span class="text-sm text-center">Create Task</span>
 					</a>
 
 					<!-- View All Projects -->
 					<a 
 						href="{{ session('is_guest') ? route('guest.projects.index') : route('projects.index') }}"
-						class="flex items-center justify-center p-2 border-2 border-primary text-primary hover:bg-secondary hover:text-secondary transition-colors"
+						class="flex items-center justify-center py-1.5 border-2 border-primary text-primary hover:bg-secondary hover:text-secondary transition-colors"
 					>
 						<x-icons.project class="w-6 h-6" />
-						<span class="text-sm font-medium text-center">View All Projects</span>
+						<span class="text-sm text-center">View Projects</span>
 					</a>
 
 					<!-- View All Tasks -->
 					<a 
 						href="{{ session('is_guest') ? route('guest.tasks.index') : route('tasks.index') }}"
-						class="flex items-center justify-center p-2 border-2 border-primary text-primary hover:bg-secondary hover:text-secondary transition-colors"
+						class="flex items-center justify-center py-1.5 border-2 border-primary text-primary hover:bg-secondary hover:text-secondary transition-colors"
 					>
 						<x-icons.task class="w-6 h-6" />
-						<span class="text-sm font-medium text-center">View All Tasks</span>
+						<span class="text-sm text-center">View Tasks</span>
 					</a>
 				</div>
 			</div>
 		</div>
 
 		<!-- Active Projects Progress & Upcoming Deadlines - Side by Side on Desktop, Stacked on Mobile -->
-		<div class="grid grid-cols-1 md:grid-cols-2 gap-2">
+		<div class="grid grid-cols-1 md:grid-cols-2 gap-4">
 			<!-- Active Projects Progress Section -->
 			<div class="border-2 border-primary">
-				<div class="p-2 border-b-2 border-primary">
+				<div class="px-1 border-b-2 border-primary bg-header">
 					<div class="flex justify-between items-center">
 						<h2 class="text-lg font-medium text-primary flex items-center space-x-2">
 							<x-icons.project class="w-5 h-5" />
 							<span>Active Projects Progress</span>
 						</h2>
-						@if(isset($activeProjects) && $activeProjects->count() > 0)
-							@if(session('is_guest'))
-								<a href="{{ route('guest.projects.index') }}" class="text-sm text-primary hover:underline">
-									View All
-								</a>
-							@else
-								<a href="{{ route('projects.index') }}" class="text-sm text-primary hover:underline">
-									View All
-								</a>
-							@endif
-						@endif
 					</div>
 				</div>
 
@@ -144,19 +133,19 @@
 						<!-- Project Progress List -->
 						<div class="space-y-2">
 							@foreach($activeProjects as $project)
-								<div class="border border-primary p-2 hover:bg-gray-300 hover:bg-opacity-50 text-primary hover:text-primary cursor-pointer transition-colors"
+								<div class="border border-primary px-1.5 hover:bg-gray-300 hover:bg-opacity-50 text-primary hover:text-primary cursor-pointer transition-colors"
 									 @if(session('is_guest'))
 										 onclick="location.href='{{ route('guest.projects.show', $project->id) }}'"
 									 @else
 										 onclick="location.href='{{ route('projects.show', $project) }}'"
 									 @endif>
 									<div class="mb-2">
-										<div class="flex justify-between items-center mb-1">
+										<div class="flex justify-between items-center">
 											<h3 class="font-medium">{{ $project->title }}</h3>
 											<span class="text-sm font-medium">{{ $project->progress }}%</span>
 										</div>
 										<!-- Progress Bar -->
-										<div class="w-full border-2 border-primary bg-gray-100">
+										<div class="w-full border-2 border-primary bg-primary">
 											<div class="bg-primary h-4" style="width: {{ $project->progress }}%"></div>
 										</div>
 										<div class="text-xs mt-1 text-primary">
@@ -187,23 +176,12 @@
 
 			<!-- Upcoming Deadlines Section -->
 			<div class="border-2 border-primary">
-				<div class="p-2 border-b-2 border-primary">
+				<div class="px-1 border-b-2 border-primary bg-header">
 					<div class="flex justify-between items-center">
 						<h2 class="text-lg font-medium text-primary flex items-center space-x-2">
 							<x-icons.task class="w-5 h-5" />
 							<span>Upcoming Deadlines</span>
 						</h2>
-						@if(isset($upcomingDeadlines) && $upcomingDeadlines->count() > 0)
-							@if(session('is_guest'))
-								<a href="{{ route('guest.tasks.index') }}" class="text-sm text-primary hover:underline">
-									View All
-								</a>
-							@else
-								<a href="{{ route('tasks.index') }}" class="text-sm text-primary hover:underline">
-									View All
-								</a>
-							@endif
-						@endif
 					</div>
 				</div>
 
@@ -212,16 +190,16 @@
 						<!-- Upcoming Deadlines List -->
 						<div class="space-y-2">
 							@foreach($upcomingDeadlines as $task)
-								<div class="border border-primary p-2 hover:bg-gray-300 hover:bg-opacity-50 text-primary hover:text-primary cursor-pointer transition-colors"
-									 @if(session('is_guest'))
-										 onclick="location.href='{{ route('guest.tasks.task-details', $task->id) }}'"
-									 @else
-										 onclick="location.href='{{ route('tasks.show', $task) }}'"
-									 @endif>
-									<div class="flex-row md:flex justify-between items-start">
+								<div class="border border-primary hover:bg-gray-300 hover:bg-opacity-50 text-primary hover:text-primary cursor-pointer transition-colors"
+									@if(session('is_guest'))
+										onclick="location.href='{{ route('guest.tasks.task-details', $task->id) }}'"
+									@else
+										onclick="location.href='{{ route('tasks.show', $task) }}'"
+									@endif>
+									<div class="flex-row md:flex justify-between items-start p-1">
 										<!-- Left Side: Title -->
-										<div class="flex-1 pr-4 mb-2 md:mb-0">
-											<h3 class="font-medium mb-1">{{ $task->title }}</h3>
+										<div class="flex-1 pr-4">
+											<h3 class="font-medium">{{ $task->title }}</h3>
 										</div>
 										<!-- Right Side: Due Date, Priority, Status -->
 										<div class="flex items-center space-x-4 text-xs">
@@ -261,10 +239,10 @@
 		</div>
 
 		<!-- Recent Sections - Side by Side on Desktop, Stacked on Mobile -->
-		<div class="grid grid-cols-1 md:grid-cols-2 gap-2">
+		<div class="grid grid-cols-1 md:grid-cols-2 gap-4">
 			<!-- Recent Tasks Section -->
 			<div class="border-2 border-primary">
-				<div class="p-2 border-b-2 border-primary">
+				<div class="px-1 border-b-2 border-primary bg-header">
 					<div class="flex justify-between items-center">
 						<h2 class="text-lg font-medium text-primary flex items-center space-x-2">
 							<x-icons.task class="w-5 h-5" />
@@ -289,7 +267,7 @@
 						<!-- Task List -->
 						<div class="space-y-2">
 							@foreach($tasks as $task)
-								<div class="border border-primary p-2 hover:bg-gray-300 hover:bg-opacity-50 text-primary hover:text-primary cursor-pointer transition-colors"
+								<div class="border border-primary p-1 hover:bg-gray-300 hover:bg-opacity-50 text-primary hover:text-primary cursor-pointer transition-colors"
 									 @if(session('is_guest'))
 										 onclick="location.href='{{ route('guest.tasks.task-details', $task->id) }}'"
 									 @else
@@ -298,7 +276,7 @@
 									<div class="flex-row md:flex justify-between items-start">
 										<!-- Left Side: Title and Description -->
 										<div class="flex-1 pr-4">
-											<h3 class="font-medium mb-1">{{ $task->title }}</h3>
+											<h3 class="font-medium">{{ $task->title }}</h3>
 										</div>
 										<!-- Right Side: Due Date, Priority, Status -->
 										<div class="flex items-center space-x-4 text-xs">
@@ -344,7 +322,7 @@
 
 			<!-- Recent Projects Section -->
 			<div class="border-2 border-primary">
-				<div class="p-2 border-b-2 border-primary">
+				<div class="px-1 border-b-2 border-primary bg-header">
 					<div class="flex justify-between items-center">
 						<h2 class="text-lg font-medium text-primary flex items-center space-x-2">
 							<x-icons.project class="w-5 h-5" />
@@ -369,7 +347,7 @@
 						<!-- Project List -->
 						<div class="space-y-2">
 							@foreach($projects as $project)
-								<div class="border border-primary p-2 hover:bg-gray-300 hover:bg-opacity-50 text-primary hover:text-primary cursor-pointer transition-colors"
+								<div class="border border-primary p-1 hover:bg-gray-300 hover:bg-opacity-50 text-primary hover:text-primary cursor-pointer transition-colors"
 									 @if(session('is_guest'))
 										 onclick="location.href='{{ route('guest.projects.show', $project->id) }}'"
 									 @else
@@ -378,10 +356,10 @@
 									<div class="flex-row md:flex justify-between items-start">
 										<!-- Left Side: Title -->
 										<div class="flex-1 pr-4">
-											<h3 class="font-medium mb-1">{{ $project->title }}</h3>
+											<h3 class="font-medium">{{ $project->title }}</h3>
 										</div>
 										<!-- Right Side: Created Date -->
-										<div class="flex items-center space-x-4 text-xs">
+										<div class="flex items-center space-x-4 text-xs pt-1">
 											<span class="flex items-center space-x-1">
 												<span>Created:</span>
 												<span class="font-medium">

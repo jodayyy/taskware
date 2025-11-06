@@ -17,6 +17,9 @@
   --gray-dark: #374151;
   --gray-text-light: #f9fafb;
   --gray-text-dark: #111827;
+  
+  /* Header background colors */
+  --header-bg: #E5E7EB; /* gray-200 */
 }
 
 /* Dark mode color scheme - Inverted colors */
@@ -27,4 +30,7 @@
   --secondary-text: #000000;
   --primary-border: #ffffff;
   --secondary-border: #000000;
+  
+  /* Header background colors */
+  --header-bg: #374151; /* gray-700 */
 }

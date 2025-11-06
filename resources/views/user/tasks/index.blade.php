@@ -37,7 +37,7 @@
 
 		<!-- Tasks List -->
 		<div class="border-2 border-primary">
-			<div class="p-2 border-b-2 border-primary flex justify-between items-center">
+			<div class="p-3 border-b-2 border-primary flex justify-between items-center">
 				<h2 class="text-lg font-medium text-primary flex items-center space-x-2">
 					<x-icons.task class="w-5 h-5" />
 					<span>Tasks ({{ $tasks->count() }})</span>
@@ -86,7 +86,7 @@
 				@endif
 			</div>
 
-			<div class="p-2">
+			<div class="p-3">
 				@if($tasks->count() > 0)
 					<form id="multipleDeleteTasksForm" method="POST" action="{{ $isGuest ? route('guest.tasks.multiple-destroy') : route('tasks.multiple-destroy') }}">
 						@csrf
@@ -94,7 +94,7 @@
 						<!-- Task List -->
 						<div class="space-y-3">
 							@foreach($tasks as $task)
-								<div class="border border-primary p-2 hover:bg-gray-300 hover:bg-opacity-50 text-primary hover:text-primary transition-colors">
+								<div class="border border-primary p-3 hover:bg-gray-300 hover:bg-opacity-50 text-primary hover:text-primary transition-colors">
 									<div class="flex-row md:flex justify-between items-start">
 										<div class="flex items-start space-x-2 flex-1">
 											<input 
@@ -165,7 +165,7 @@
 
 	<!-- Multiple Delete Confirmation Modal -->
 	<div id="multipleDeleteModal" class="fixed inset-0 bg-black bg-opacity-50 z-50 hidden">
-		<div class="flex items-center justify-center min-h-screen p-2">
+		<div class="flex items-center justify-center min-h-screen p-3">
 			<div class="bg-primary border-2 border-primary w-full max-w-md">
 				<div class="p-6">
 					<div class="flex items-center mb-4">

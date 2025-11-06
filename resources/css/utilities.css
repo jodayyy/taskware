@@ -12,6 +12,10 @@
     background-color: var(--secondary-bg); 
   }
 
+  .bg-header { 
+    background-color: var(--header-bg); 
+  }
+
   .text-primary { 
     color: var(--primary-text); 
   }
