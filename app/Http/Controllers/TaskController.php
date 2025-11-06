@@ -147,4 +147,41 @@ class TaskController extends Controller
 
 		return redirect()->route('tasks.index')->with('success', 'Task deleted successfully!');
 	}
+
+	/**
+	 * Remove multiple tasks.
+	 */
+	public function multipleDestroy(Request $request): RedirectResponse|JsonResponse
+	{
+		$request->validate([
+			'ids' => 'required|array',
+			'ids.*' => 'required|integer|exists:tasks,id',
+		]);
+
+		$user = Auth::user();
+		$taskIds = $request->input('ids');
+		$deletedCount = 0;
+
+		foreach ($taskIds as $taskId) {
+			$task = $this->taskRepository->findById((int) $taskId);
+			
+			if ($task && $user->can('delete', $task)) {
+				$this->taskRepository->delete($task);
+				$deletedCount++;
+			}
+		}
+
+		if ($request->wantsJson()) {
+			return response()->json([
+				'message' => "{$deletedCount} task(s) deleted successfully!",
+				'deleted_count' => $deletedCount
+			]);
+		}
+
+		$message = $deletedCount > 0 
+			? "{$deletedCount} task(s) deleted successfully!" 
+			: 'No tasks were deleted.';
+
+		return redirect()->route('tasks.index')->with('success', $message);
+	}
 }

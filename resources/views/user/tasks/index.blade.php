@@ -37,52 +37,109 @@
 
 		<!-- Tasks List -->
 		<div class="border-2 border-primary">
-			<div class="p-2 border-b-2 border-primary">
+			<div class="p-2 border-b-2 border-primary flex justify-between items-center">
 				<h2 class="text-lg font-medium text-primary flex items-center space-x-2">
 					<x-icons.task class="w-5 h-5" />
 					<span>Tasks ({{ $tasks->count() }})</span>
 				</h2>
+				@if($tasks->count() > 0)
+					<div class="flex items-center space-x-2">
+						<!-- Delete Multiple Button (shown by default) -->
+						<button 
+							type="button"
+							id="toggleDeleteModeBtn"
+							onclick="toggleDeleteMode()"
+							class="border-2 border-primary px-4 py-2 text-primary hover:bg-secondary hover:text-secondary text-sm flex items-center space-x-2"
+						>
+							<x-icons.delete class="w-4 h-4" />
+							<span>Delete Multiple</span>
+						</button>
+						<!-- Selection Controls (hidden by default) -->
+						<div id="multipleDeleteControls" class="flex items-center space-x-2 hidden">
+							<label class="flex items-center space-x-2 text-primary cursor-pointer">
+								<input 
+									type="checkbox" 
+									id="selectAllTasks" 
+									class="w-4 h-4 border-primary text-primary focus:ring-primary"
+									onchange="toggleSelectAllTasks(this)"
+								>
+								<span class="text-sm">Select All</span>
+							</label>
+							<button 
+								type="button"
+								id="multipleDeleteTasksBtn"
+								onclick="multipleDeleteTasks()"
+								class="border-2 border-red-500 px-4 py-2 text-red-500 hover:bg-red-500 hover:text-white text-sm disabled:opacity-50 disabled:cursor-not-allowed"
+								disabled
+							>
+								Delete Selected
+							</button>
+							<button 
+								type="button"
+								onclick="cancelDeleteMode()"
+								class="border-2 border-primary px-4 py-2 text-primary hover:bg-secondary hover:text-secondary text-sm"
+							>
+								Cancel
+							</button>
+						</div>
+					</div>
+				@endif
 			</div>
 
 			<div class="p-2">
 				@if($tasks->count() > 0)
-					<!-- Task List -->
-					<div class="space-y-3">
-						@foreach($tasks as $task)
-							<div class="border border-primary p-2 hover:bg-gray-300 hover:bg-opacity-50 text-primary hover:text-primary cursor-pointer transition-colors"
-								 @if($isGuest)
-									 onclick="location.href='{{ route('guest.tasks.task-details', $task->id) }}'"
-								 @else
-									 onclick="location.href='{{ route('tasks.show', $task) }}'"
-								 @endif>
-								<div class="flex-row md:flex justify-between items-start">
-									<!-- Left Side: Title and Description -->
-									<div class="flex-1 pr-4">
-										<h3 class="font-medium mb-1">{{ $task->title }}</h3>
-									</div>
-									<!-- Right Side: Due Date, Priority, Status -->
-									<div class="flex items-center space-x-4 text-xs">
-										<span class="flex items-center space-x-1">
-											<span>Due:</span>
-											<span class="font-medium">
-												@if(is_string($task->deadline))
-													{{ \Carbon\Carbon::parse($task->deadline)->format('M j, Y') }}
+					<form id="multipleDeleteTasksForm" method="POST" action="{{ $isGuest ? route('guest.tasks.multiple-destroy') : route('tasks.multiple-destroy') }}">
+						@csrf
+						@method('DELETE')
+						<!-- Task List -->
+						<div class="space-y-3">
+							@foreach($tasks as $task)
+								<div class="border border-primary p-2 hover:bg-gray-300 hover:bg-opacity-50 text-primary hover:text-primary transition-colors">
+									<div class="flex-row md:flex justify-between items-start">
+										<div class="flex items-start space-x-2 flex-1">
+											<input 
+												type="checkbox" 
+												name="ids[]" 
+												value="{{ $task->id }}"
+												class="task-checkbox w-4 h-4 border-primary text-primary focus:ring-primary mt-1 cursor-pointer hidden"
+												onchange="updateMultipleDeleteButton()"
+												onclick="event.stopPropagation()"
+											>
+											<div 
+												class="flex-1 cursor-pointer"
+												@if($isGuest)
+													onclick="location.href='{{ route('guest.tasks.task-details', $task->id) }}'"
 												@else
-													{{ $task->deadline->format('M j, Y') }}
+													onclick="location.href='{{ route('tasks.show', $task) }}'"
 												@endif
+											>
+												<h3 class="font-medium mb-1">{{ $task->title }}</h3>
+											</div>
+										</div>
+										<!-- Right Side: Due Date, Priority, Status -->
+										<div class="flex items-center space-x-4 text-xs">
+											<span class="flex items-center space-x-1">
+												<span>Due:</span>
+												<span class="font-medium">
+													@if(is_string($task->deadline))
+														{{ \Carbon\Carbon::parse($task->deadline)->format('M j, Y') }}
+													@else
+														{{ $task->deadline->format('M j, Y') }}
+													@endif
+												</span>
 											</span>
-										</span>
-										<span class="px-2 py-1 border border-current">
-											{{ $task->priority_label }}
-										</span>
-										<span class="px-2 py-1 border border-current">
-											{{ $task->status_label }}
-										</span>
+											<span class="px-2 py-1 border border-current">
+												{{ $task->priority_label }}
+											</span>
+											<span class="px-2 py-1 border border-current">
+												{{ $task->status_label }}
+											</span>
+										</div>
 									</div>
 								</div>
-							</div>
-						@endforeach
-					</div>
+							@endforeach
+						</div>
+					</form>
                     <div class="pt-2">
                         {{ $tasks->links() }}
                     </div>
@@ -105,4 +162,133 @@
 			</div>
 		</div>
 	</div>
+
+	<!-- Multiple Delete Confirmation Modal -->
+	<div id="multipleDeleteModal" class="fixed inset-0 bg-black bg-opacity-50 z-50 hidden">
+		<div class="flex items-center justify-center min-h-screen p-2">
+			<div class="bg-primary border-2 border-primary w-full max-w-md">
+				<div class="p-6">
+					<div class="flex items-center mb-4">
+						<x-icons.delete class="w-6 h-6 text-red-500 mr-3" />
+						<h3 class="text-lg font-bold text-primary">Delete Selected Tasks</h3>
+					</div>
+					<p class="text-primary mb-6">
+						Are you sure you want to delete <span id="selectedCount"></span> task(s)? This action cannot be undone.
+					</p>
+					<div class="flex justify-end space-x-3">
+						<button 
+							onclick="closeMultipleDeleteModal()"
+							class="border-2 border-primary px-4 py-2 text-primary hover:bg-secondary hover:text-secondary"
+						>
+							Cancel
+						</button>
+						<button 
+							onclick="confirmMultipleDeleteTasks()"
+							class="border-2 border-red-500 px-4 py-2 text-red-500 hover:bg-red-500 hover:text-white"
+						>
+							Delete
+						</button>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<script>
+		let deleteModeActive = false;
+
+		function toggleDeleteMode() {
+			deleteModeActive = !deleteModeActive;
+			const toggleBtn = document.getElementById('toggleDeleteModeBtn');
+			const multipleControls = document.getElementById('multipleDeleteControls');
+			const checkboxes = document.querySelectorAll('.task-checkbox');
+
+			if (deleteModeActive) {
+				// Show selection mode
+				toggleBtn.classList.add('hidden');
+				multipleControls.classList.remove('hidden');
+				checkboxes.forEach(cb => {
+					cb.classList.remove('hidden');
+				});
+			} else {
+				// Hide selection mode
+				cancelDeleteMode();
+			}
+		}
+
+		function cancelDeleteMode() {
+			deleteModeActive = false;
+			const toggleBtn = document.getElementById('toggleDeleteModeBtn');
+			const multipleControls = document.getElementById('multipleDeleteControls');
+			const checkboxes = document.querySelectorAll('.task-checkbox');
+			const selectAllCheckbox = document.getElementById('selectAllTasks');
+
+			// Hide controls
+			toggleBtn.classList.remove('hidden');
+			multipleControls.classList.add('hidden');
+			
+			// Hide and uncheck all checkboxes
+			checkboxes.forEach(cb => {
+				cb.classList.add('hidden');
+				cb.checked = false;
+			});
+
+			// Reset select all checkbox
+			if (selectAllCheckbox) {
+				selectAllCheckbox.checked = false;
+				selectAllCheckbox.indeterminate = false;
+			}
+
+			// Disable delete button
+			const multipleDeleteBtn = document.getElementById('multipleDeleteTasksBtn');
+			if (multipleDeleteBtn) {
+				multipleDeleteBtn.disabled = true;
+			}
+		}
+
+		function toggleSelectAllTasks(checkbox) {
+			const checkboxes = document.querySelectorAll('.task-checkbox');
+			checkboxes.forEach(cb => {
+				cb.checked = checkbox.checked;
+			});
+			updateMultipleDeleteButton();
+		}
+
+		function updateMultipleDeleteButton() {
+			const checkboxes = document.querySelectorAll('.task-checkbox:checked');
+			const multipleDeleteBtn = document.getElementById('multipleDeleteTasksBtn');
+			const selectAllCheckbox = document.getElementById('selectAllTasks');
+			
+			if (checkboxes.length > 0) {
+				multipleDeleteBtn.disabled = false;
+			} else {
+				multipleDeleteBtn.disabled = true;
+			}
+
+			// Update select all checkbox state
+			const allCheckboxes = document.querySelectorAll('.task-checkbox');
+			if (allCheckboxes.length > 0) {
+				selectAllCheckbox.checked = checkboxes.length === allCheckboxes.length;
+				selectAllCheckbox.indeterminate = checkboxes.length > 0 && checkboxes.length < allCheckboxes.length;
+			}
+		}
+
+		function multipleDeleteTasks() {
+			const checkboxes = document.querySelectorAll('.task-checkbox:checked');
+			if (checkboxes.length === 0) {
+				return;
+			}
+
+			document.getElementById('selectedCount').textContent = checkboxes.length;
+			document.getElementById('multipleDeleteModal').classList.remove('hidden');
+		}
+
+		function confirmMultipleDeleteTasks() {
+			document.getElementById('multipleDeleteTasksForm').submit();
+		}
+
+		function closeMultipleDeleteModal() {
+			document.getElementById('multipleDeleteModal').classList.add('hidden');
+		}
+	</script>
 </x-layout.app>

@@ -128,5 +128,42 @@ class ProjectController extends Controller
 
 		return redirect()->route('projects.index')->with('success', 'Project deleted successfully!');
 	}
+
+	/**
+	 * Remove multiple projects.
+	 */
+	public function multipleDestroy(Request $request): RedirectResponse|JsonResponse
+	{
+		$request->validate([
+			'ids' => 'required|array',
+			'ids.*' => 'required|integer|exists:projects,id',
+		]);
+
+		$user = Auth::user();
+		$projectIds = $request->input('ids');
+		$deletedCount = 0;
+
+		foreach ($projectIds as $projectId) {
+			$project = $this->projectRepository->findById((int) $projectId);
+			
+			if ($project && $user->can('delete', $project)) {
+				$this->projectRepository->delete($project);
+				$deletedCount++;
+			}
+		}
+
+		if ($request->wantsJson()) {
+			return response()->json([
+				'message' => "{$deletedCount} project(s) deleted successfully!",
+				'deleted_count' => $deletedCount
+			]);
+		}
+
+		$message = $deletedCount > 0 
+			? "{$deletedCount} project(s) deleted successfully!" 
+			: 'No projects were deleted.';
+
+		return redirect()->route('projects.index')->with('success', $message);
+	}
 }
 

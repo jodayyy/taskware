@@ -565,4 +565,98 @@ class GuestController extends Controller
 		
 		return redirect()->route('guest.projects.index')->with('success', 'Project deleted successfully!');
 	}
+
+	/**
+	 * Remove multiple tasks for guest user.
+	 */
+	public function multipleDestroyTasks(Request $request): RedirectResponse|JsonResponse
+	{
+		if (!session('is_guest')) {
+			return redirect()->route('welcome');
+		}
+
+		$request->validate([
+			'ids' => 'required|array',
+			'ids.*' => 'required|integer',
+		]);
+
+		$guestId = session('guest_id');
+		$guestUser = $this->guestService->getGuestUser($guestId);
+		
+		if (!$guestUser) {
+			return redirect()->route('welcome');
+		}
+
+		$taskIds = $request->input('ids');
+		$deletedCount = 0;
+
+		foreach ($taskIds as $taskId) {
+			$task = $this->guestTaskRepository->findByIdAndGuest((int) $taskId, $guestId);
+			
+			if ($task) {
+				$this->guestTaskRepository->delete($task);
+				$deletedCount++;
+			}
+		}
+
+		if ($request->wantsJson()) {
+			return response()->json([
+				'message' => "{$deletedCount} task(s) deleted successfully!",
+				'deleted_count' => $deletedCount
+			]);
+		}
+
+		$message = $deletedCount > 0 
+			? "{$deletedCount} task(s) deleted successfully!" 
+			: 'No tasks were deleted.';
+
+		return redirect()->route('guest.tasks.index')->with('success', $message);
+	}
+
+	/**
+	 * Remove multiple projects for guest user.
+	 */
+	public function multipleDestroyProjects(Request $request): RedirectResponse|JsonResponse
+	{
+		if (!session('is_guest')) {
+			return redirect()->route('welcome');
+		}
+
+		$request->validate([
+			'ids' => 'required|array',
+			'ids.*' => 'required|integer',
+		]);
+
+		$guestId = session('guest_id');
+		$guestUser = $this->guestService->getGuestUser($guestId);
+		
+		if (!$guestUser) {
+			return redirect()->route('welcome');
+		}
+
+		$projectIds = $request->input('ids');
+		$deletedCount = 0;
+
+		foreach ($projectIds as $projectId) {
+			$project = $this->guestProjectRepository->findByIdAndGuest((int) $projectId, $guestId);
+			
+			if ($project) {
+				$this->guestProjectRepository->delete($project);
+				$deletedCount++;
+			}
+		}
+
+		if ($request->wantsJson()) {
+			return response()->json([
+				'message' => "{$deletedCount} project(s) deleted successfully!",
+				'deleted_count' => $deletedCount
+			]);
+		}
+
+		$message = $deletedCount > 0 
+			? "{$deletedCount} project(s) deleted successfully!" 
+			: 'No projects were deleted.';
+
+		return redirect()->route('guest.projects.index')->with('success', $message);
+	}
 }

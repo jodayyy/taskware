@@ -31,6 +31,7 @@ Route::prefix('guest')->name('guest.')->group(function () {
 	Route::get('/tasks', [GuestController::class, 'indexTasks'])->name('tasks.index');
 	Route::get('/tasks/create', [GuestController::class, 'createTask'])->name('tasks.create');
 	Route::post('/tasks', [GuestController::class, 'storeTask'])->name('tasks.store');
+	Route::delete('/tasks/multiple-destroy', [GuestController::class, 'multipleDestroyTasks'])->name('tasks.multiple-destroy');
 	Route::get('/tasks/{id}', [GuestController::class, 'showTask'])->name('tasks.task-details');
 	Route::put('/tasks/{id}', [GuestController::class, 'updateTask'])->name('tasks.update');
 	Route::delete('/tasks/{id}', [GuestController::class, 'destroyTask'])->name('tasks.destroy');
@@ -39,6 +40,7 @@ Route::prefix('guest')->name('guest.')->group(function () {
 	Route::get('/projects', [GuestController::class, 'indexProjects'])->name('projects.index');
 	Route::get('/projects/create', [GuestController::class, 'createProject'])->name('projects.create');
 	Route::post('/projects', [GuestController::class, 'storeProject'])->name('projects.store');
+	Route::delete('/projects/multiple-destroy', [GuestController::class, 'multipleDestroyProjects'])->name('projects.multiple-destroy');
 	Route::get('/projects/{id}', [GuestController::class, 'showProject'])->name('projects.show');
 	Route::put('/projects/{id}', [GuestController::class, 'updateProject'])->name('projects.update');
 	Route::delete('/projects/{id}', [GuestController::class, 'destroyProject'])->name('projects.destroy');
@@ -52,8 +54,10 @@ Route::middleware('auth')->group(function () {
 	Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 	
 	// Task routes
+	Route::delete('/tasks/multiple-destroy', [TaskController::class, 'multipleDestroy'])->name('tasks.multiple-destroy');
 	Route::resource('tasks', TaskController::class);
 	
 	// Project routes
+	Route::delete('/projects/multiple-destroy', [ProjectController::class, 'multipleDestroy'])->name('projects.multiple-destroy');
 	Route::resource('projects', ProjectController::class);
 });
