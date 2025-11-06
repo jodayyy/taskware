@@ -38,6 +38,33 @@ class DashboardController extends Controller
 			->where('priority', TaskPriority::URGENT->value)
 			->count();
 		
+		// Get upcoming deadlines (next 7 days)
+		$upcomingDeadlines = Task::where('user_id', $user->id)
+			->whereNotNull('deadline')
+			->where('deadline', '>=', now())
+			->where('deadline', '<=', now()->addDays(7))
+			->where('status', '!=', TaskStatus::DONE->value)
+			->orderBy('deadline', 'asc')
+			->limit(5)
+			->get();
+		
+		// Get active projects with progress
+		$activeProjects = Project::where('user_id', $user->id)
+			->withCount(['tasks', 'tasks as completed_tasks_count' => function ($query) {
+				$query->where('status', TaskStatus::DONE->value);
+			}])
+			->has('tasks')
+			->orderBy('updated_at', 'desc')
+			->limit(5)
+			->get()
+			->map(function ($project) {
+				$progress = $project->tasks_count > 0 
+					? round(($project->completed_tasks_count / $project->tasks_count) * 100) 
+					: 0;
+				$project->progress = $progress;
+				return $project;
+			});
+		
 		return view('user.dashboard.dashboard', [
 			'user' => $user,
 			'tasks' => $tasks,
@@ -46,6 +73,8 @@ class DashboardController extends Controller
 			'totalTasks' => $totalTasks,
 			'inProgressTasks' => $inProgressTasks,
 			'urgentTasks' => $urgentTasks,
+			'upcomingDeadlines' => $upcomingDeadlines,
+			'activeProjects' => $activeProjects,
 		]);
 	}
 }

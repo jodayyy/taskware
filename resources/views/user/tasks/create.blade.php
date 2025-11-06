@@ -21,12 +21,12 @@
 	<div class="max-w-4xl mx-auto space-y-4">
 		<!-- Task Header -->
 		<div class="border-2 border-primary">
-			<div class="p-4 border-b-2 border-primary">
+			<div class="p-2 border-b-2 border-primary">
 				<h1 class="text-2xl font-bold text-primary">Create New Task</h1>
 			</div>
 
 			<!-- Task Form Section -->
-			<div class="p-4">
+			<div class="p-2">
 				<form method="POST" action="{{ $storeRoute }}" class="space-y-2">
 					@csrf
 

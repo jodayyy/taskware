@@ -30,6 +30,19 @@ class StoreGuestTaskRequest extends FormRequest
 				$this->merge(['project_id' => (int) $this->project_id]);
 			}
 		}
+		
+		// Convert deadline from dd/mm/yyyy to Y-m-d format for Laravel validation
+		if ($this->has('deadline') && $this->deadline) {
+			$deadline = $this->input('deadline');
+			// Check if it's in dd/mm/yyyy format
+			if (preg_match('/^(\d{2})\/(\d{2})\/(\d{4})$/', $deadline, $matches)) {
+				$day = $matches[1];
+				$month = $matches[2];
+				$year = $matches[3];
+				// Convert to Y-m-d format
+				$this->merge(['deadline' => "{$year}-{$month}-{$day}"]);
+			}
+		}
 	}
 
 	/**

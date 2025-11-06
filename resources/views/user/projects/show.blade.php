@@ -22,12 +22,12 @@
 	<div class="max-w-4xl mx-auto space-y-4">
 		<!-- Project Header -->
 		<div class="border-2 border-primary">
-			<div class="p-4 border-b-2 border-primary">
+			<div class="p-2 border-b-2 border-primary">
 				<h1 class="text-2xl font-bold text-primary">{{ $project->title }}</h1>
 			</div>
 
 			<!-- Project Details Section -->
-			<div class="p-4">
+			<div class="p-2">
 				<form method="POST" action="{{ $updateRoute }}" class="space-y-2">
 					@csrf
 					@method('PUT')
@@ -107,14 +107,14 @@
 
 		<!-- Project Tasks Section -->
 		<div class="border-2 border-primary">
-			<div class="p-4 border-b-2 border-primary">
+			<div class="p-2 border-b-2 border-primary">
 				<h2 class="text-lg font-medium text-primary flex items-center space-x-2">
 					<x-icons.task class="w-5 h-5" />
 					<span>Tasks ({{ $project->tasks->count() }})</span>
 				</h2>
 			</div>
 
-			<div class="p-4">
+			<div class="p-2">
 				@if($project->tasks->count() > 0)
 					<!-- Task List -->
 					<div class="space-y-3">
@@ -175,7 +175,7 @@
 
 	<!-- Delete Confirmation Modal -->
 	<div id="deleteModal" class="fixed inset-0 bg-black bg-opacity-50 z-50 hidden">
-		<div class="flex items-center justify-center min-h-screen p-4">
+		<div class="flex items-center justify-center min-h-screen p-2">
 			<div class="bg-primary border-2 border-primary w-full max-w-md">
 				<div class="p-6">
 					<div class="flex items-center mb-4">

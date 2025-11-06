@@ -37,14 +37,14 @@
 
 		<!-- Tasks List -->
 		<div class="border-2 border-primary">
-			<div class="p-4 border-b-2 border-primary">
+			<div class="p-2 border-b-2 border-primary">
 				<h2 class="text-lg font-medium text-primary flex items-center space-x-2">
 					<x-icons.task class="w-5 h-5" />
 					<span>Tasks ({{ $tasks->count() }})</span>
 				</h2>
 			</div>
 
-			<div class="p-4">
+			<div class="p-2">
 				@if($tasks->count() > 0)
 					<!-- Task List -->
 					<div class="space-y-3">
@@ -83,7 +83,7 @@
 							</div>
 						@endforeach
 					</div>
-                    <div class="mt-6">
+                    <div class="pt-2">
                         {{ $tasks->links() }}
                     </div>
 				@else
