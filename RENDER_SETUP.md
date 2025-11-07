@@ -91,17 +91,18 @@ LOG_STDERR_FORMATTER=Monolog\Formatter\JsonFormatter
 - **Runtime**: PHP 8.2 + Nginx
 - **Auto-deploy**: Enabled on Git push
 - **Health check**: Enabled on `/`
+- **Region**: Singapore
 
 ### 2. Database (`taskware-db`)
 - **Type**: PostgreSQL
 - **Plan**: Free tier
-- **Region**: Oregon
+- **Region**: Singapore
 - **Used by**: Both main and guest data
 
-### 3. Cron Job (`taskware-scheduler`)
-- **Schedule**: Every hour (`0 */1 * * *`)
-- **Command**: `php artisan schedule:run`
+### 3. Scheduled Tasks
+- **Setup Required**: See [SCHEDULED_TASKS.md](SCHEDULED_TASKS.md)
 - **Purpose**: Cleanup old guest data (30+ days)
+- **Options**: External cron service (free) or background worker (paid)
 
 ## How It Works
 
@@ -255,7 +256,7 @@ Databases → taskware-db → Backups → Create Backup
                   │
                   ▼
 ┌─────────────────────────────────────────────────┐
-│  Web Service (taskware)                         │
+│  Web Service (taskware) - Singapore             │
 │  ┌───────────────────────────────────────────┐  │
 │  │  Nginx :8080                              │  │
 │  │    ↓                                      │  │
@@ -267,7 +268,7 @@ Databases → taskware-db → Backups → Create Backup
                   │
                   ▼
 ┌─────────────────────────────────────────────────┐
-│  PostgreSQL Database (taskware-db)              │
+│  PostgreSQL Database (taskware-db) - Singapore  │
 │  ┌───────────────────────────────────────────┐  │
 │  │  Main Tables:                             │  │
 │  │  - users, sessions, tasks, projects       │  │
@@ -280,9 +281,10 @@ Databases → taskware-db → Backups → Create Backup
                   ▲
                   │
 ┌─────────────────┴───────────────────────────────┐
-│  Cron Job (taskware-scheduler)                  │
-│  Runs: php artisan schedule:run (hourly)        │
+│  External Cron Service (Optional)               │
+│  Triggers: /cron/run endpoint hourly            │
 │  - Cleanup old guest data                       │
+│  See: SCHEDULED_TASKS.md                        │
 └─────────────────────────────────────────────────┘
 ```
 
@@ -292,7 +294,7 @@ Databases → taskware-db → Backups → Create Backup
 |---------|------------------|------|
 | Web Service | 750 hrs/month, sleeps after 15min idle | $0 |
 | PostgreSQL | 1GB storage, 90-day retention | $0 |
-| Cron Job | Shared 750 hrs/month | $0 |
+| External Cron | Free tier on various services | $0 |
 | Bandwidth | 100GB/month | $0 |
 | **Total** | | **$0/month** |
 
@@ -303,7 +305,8 @@ Databases → taskware-db → Backups → Create Backup
 3. 🔗 Connect repository to Render
 4. 🚀 Deploy using render.yaml blueprint
 5. 🔑 Set APP_KEY environment variable
-6. 🎉 Access your deployed application!
+6. ⏰ Set up scheduled tasks (see [SCHEDULED_TASKS.md](SCHEDULED_TASKS.md))
+7. 🎉 Access your deployed application!
 
 For detailed deployment instructions, see [DEPLOYMENT.md](DEPLOYMENT.md)
 

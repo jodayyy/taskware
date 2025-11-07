@@ -149,6 +149,8 @@ If you prefer manual deployment:
 
 For detailed deployment instructions, see [DEPLOYMENT.md](DEPLOYMENT.md) or [RENDER_SETUP.md](RENDER_SETUP.md)
 
+**Note:** For scheduled tasks (guest data cleanup), see [SCHEDULED_TASKS.md](SCHEDULED_TASKS.md) for setup instructions.
+
 ## License
 
 This project is licensed under the [MIT license](LICENSE).

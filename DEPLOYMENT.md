@@ -13,7 +13,8 @@ This guide walks you through deploying Taskware to Render.com, a cloud platform 
 The deployment consists of:
 1. **Web Service** - Runs the Laravel application using Docker
 2. **PostgreSQL Database** - Main database for users, tasks, and projects
-3. **Cron Job** - Scheduled task runner for guest data cleanup
+
+**Note:** Scheduled tasks (like guest data cleanup) need to be set up separately. See [SCHEDULED_TASKS.md](SCHEDULED_TASKS.md) for instructions.
 
 ## Quick Deploy
 
@@ -39,7 +40,6 @@ Ensure your repository includes these deployment files:
 Render will automatically detect the `render.yaml` file and create:
 - Web service named `taskware`
 - PostgreSQL database named `taskware-db`
-- Cron job for scheduled tasks
 
 **IMPORTANT**: You need to set the `APP_KEY` environment variable:
 
@@ -115,14 +115,12 @@ Taskware uses two database configurations:
 
 ## Scheduled Tasks
 
-A cron job runs hourly to execute Laravel's scheduled tasks:
-- Cleans up guest data older than 30 days
-- Runs at: `0 */1 * * *` (every hour)
+Your Laravel application includes scheduled tasks (like guest data cleanup). Since Render's free tier doesn't support cron jobs in the YAML blueprint, you'll need to set these up separately.
 
-To modify the schedule:
-1. Edit `render.yaml`
-2. Update the `schedule` field under the cron service
-3. Push changes to trigger redeployment
+**See [SCHEDULED_TASKS.md](SCHEDULED_TASKS.md) for complete instructions on:**
+- Using free external cron services (recommended for free tier)
+- Setting up background workers (paid plans)
+- Preventing app sleep while running scheduled tasks
 
 ## Manual Configuration (Optional)
 
