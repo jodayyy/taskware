@@ -18,10 +18,10 @@
 	<x-form.message type="success" :message="session('success')" />
 	<x-form.message type="error" :message="session('error')" />
 	
-	<div class="max-w-4xl mx-auto space-y-4">
+	<div class="max-w-4xl mx-auto">
 		<!-- Task Header -->
 		<div class="border-2 border-primary">
-			<div class="p-3 border-b-2 border-primary">
+			<div class="px-2 pb-1 pt-0.5 border-b-2 border-primary bg-header">
 				<h1 class="text-2xl font-bold text-primary">Create New Task</h1>
 			</div>
 
@@ -70,7 +70,7 @@
 					<!-- Task Information Grid -->
 					<div>
 						<h3 class="text-lg font-medium text-primary mb-3">Task Information</h3>
-						<div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+						<div class="grid grid-cols-1 md:grid-cols-2 gap-4">
 							<!-- Deadline -->
 							<div>
 								<x-form.date-picker 
@@ -153,7 +153,7 @@
 					</div>
 
 					<!-- Form Actions -->
-					<div class="flex justify-end space-x-3 pt-4 border-primary">
+					<div class="flex justify-end space-x-3 border-primary">
 						<a 
 							href="{{ $indexRoute }}" 
 							class="border-2 border-primary px-4 py-2 text-primary hover:bg-secondary hover:text-secondary"

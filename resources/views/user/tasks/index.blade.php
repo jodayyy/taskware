@@ -19,16 +19,16 @@
 	<x-form.message type="success" :message="session('success')" />
 	<x-form.message type="error" :message="session('error')" />
 	
-	<div class="space-y-6">
+	<div class="space-y-3">
 		<!-- Header with Add Task Button -->
-		<div class="flex justify-between items-center">
+		<div class="flex flex-col md:flex-row md:justify-between md:items-center space-y-2 md:space-y-0">
 			<div>
 				<h1 class="text-2xl font-bold text-primary">All Tasks</h1>
 				<p class="text-primary mt-1">Manage and organize your tasks</p>
 			</div>
 			<a 
 				href="{{ $isGuest ? route('guest.tasks.create') : route('tasks.create') }}"
-				class="border-2 border-primary px-4 py-2 text-primary hover:bg-secondary hover:text-secondary flex items-center space-x-2"
+				class="border-2 border-primary p-2 text-primary hover:bg-secondary hover:text-secondary flex items-center space-x-2"
 			>
 				<x-icons.plus class="w-5 h-5" />
 				<span>Create Task</span>
@@ -37,7 +37,7 @@
 
 		<!-- Tasks List -->
 		<div class="border-2 border-primary">
-			<div class="p-3 border-b-2 border-primary flex justify-between items-center">
+			<div class="p-2 border-b-2 border-primary flex flex-col md:flex-row md:justify-between md:items-center space-y-2 md:space-y-0">
 				<h2 class="text-lg font-medium text-primary flex items-center space-x-2">
 					<x-icons.task class="w-5 h-5" />
 					<span>Tasks ({{ $tasks->count() }})</span>
@@ -49,7 +49,7 @@
 							type="button"
 							id="toggleDeleteModeBtn"
 							onclick="toggleDeleteMode()"
-							class="border-2 border-primary px-4 py-2 text-primary hover:bg-secondary hover:text-secondary text-sm flex items-center space-x-2"
+							class="border-2 border-primary p-2 text-primary hover:bg-secondary hover:text-secondary text-sm flex items-center space-x-2"
 						>
 							<x-icons.delete class="w-4 h-4" />
 							<span>Delete Multiple</span>
@@ -86,22 +86,22 @@
 				@endif
 			</div>
 
-			<div class="p-3">
+			<div class="p-2">
 				@if($tasks->count() > 0)
 					<form id="multipleDeleteTasksForm" method="POST" action="{{ $isGuest ? route('guest.tasks.multiple-destroy') : route('tasks.multiple-destroy') }}">
 						@csrf
 						@method('DELETE')
 						<!-- Task List -->
-						<div class="space-y-3">
+						<div class="space-y-2">
 							@foreach($tasks as $task)
-								<div class="border border-primary p-3 hover:bg-gray-300 hover:bg-opacity-50 text-primary hover:text-primary transition-colors">
+								<div class="px-1 pb-1 md:px-1 md:pt-1 md:pb-0.5 border border-primary hover:bg-gray-300 hover:bg-opacity-50 text-primary hover:text-primary transition-colors">
 									<div class="flex-row md:flex justify-between items-start">
-										<div class="flex items-start space-x-2 flex-1">
+										<div class="flex items-start flex-1">
 											<input 
 												type="checkbox" 
 												name="ids[]" 
 												value="{{ $task->id }}"
-												class="task-checkbox w-4 h-4 border-primary text-primary focus:ring-primary mt-1 cursor-pointer hidden"
+												class="task-checkbox w-4 h-4 border-primary text-primary focus:ring-primary mt-1 mr-1 cursor-pointer hidden"
 												onchange="updateMultipleDeleteButton()"
 												onclick="event.stopPropagation()"
 											>

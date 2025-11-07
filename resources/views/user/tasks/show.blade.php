@@ -21,10 +21,10 @@
 	<x-form.message type="success" :message="session('success')" />
 	<x-form.message type="error" :message="session('error')" />
 	
-	<div class="max-w-4xl mx-auto space-y-4">
+	<div class="max-w-4xl mx-auto">
 		<!-- Task Header -->
 		<div class="border-2 border-primary">
-			<div class="p-3 border-b-2 border-primary">
+			<div class="p-2 border-b-2 border-primary bg-header">
 				<div class="flex-row md:flex justify-between items-start">
 					<h1 class="text-2xl font-bold text-primary">{{ $task->title }}</h1>
 					<div class="flex items-center space-x-4 text-sm text-primary">
@@ -43,7 +43,7 @@
 			</div>
 
 			<!-- Task Details Section -->
-			<div class="p-3">
+			<div class="p-2">
 				<form method="POST" action="{{ $updateRoute }}" class="space-y-2">
 					@csrf
 					@method('PUT')
@@ -88,7 +88,7 @@
 					<!-- Task Information Grid -->
 					<div>
 						<h3 class="text-lg font-medium text-primary mb-3">Task Information</h3>
-						<div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+						<div class="grid grid-cols-1 md:grid-cols-2 gap-4">
 							<!-- Deadline -->
 							<div>
 								<x-form.date-picker 
