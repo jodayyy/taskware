@@ -3,7 +3,7 @@ services:
   - type: web
     name: taskware
     runtime: docker
-    region: oregon
+    region: singapore
     plan: free
     envVars:
       - key: APP_NAME
@@ -72,11 +72,13 @@ databases:
   - name: taskware-db
     databaseName: taskware
     user: taskware_user
+    region: singapore
     plan: free
     
   # Guest Database
   - name: taskware-guest-db
     databaseName: taskware_guest
     user: taskware_guest_user
+    region: singapore
     plan: free
 
