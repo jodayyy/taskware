@@ -8,11 +8,19 @@ use Illuminate\Support\Facades\DB;
 return new class extends Migration
 {
 	/**
-	 * Get the connection name for this migration.
+	 * Resolve the database connection name for this migration.
 	 */
-	protected function getConnectionName(): ?string
+	protected function connectionName(): string
 	{
-		return $this->connection ?? null;
+		return $this->connection ?? config('database.default');
+	}
+
+	/**
+	 * Resolve the table name for the current connection.
+	 */
+	protected function tableName(string $connection): string
+	{
+		return in_array($connection, ['guest_sqlite', 'guest_pgsql'], true) ? 'guest_tasks' : 'tasks';
 	}
 
 	/**
@@ -20,60 +28,40 @@ return new class extends Migration
 	 */
 	public function up(): void
 	{
-		$connection = $this->getConnectionName();
-		$isGuestConnection = in_array($connection, ['guest_sqlite', 'guest_pgsql']);
-		$tableName = $isGuestConnection ? 'guest_tasks' : 'tasks';
+		$connectionName = $this->connectionName();
+		$connection = DB::connection($connectionName);
+		$schema = Schema::connection($connectionName);
+		$tableName = $this->tableName($connectionName);
 		
-		// Skip if table doesn't exist
-		if (!Schema::connection($connection)->hasTable($tableName)) {
+		if (!$schema->hasTable($tableName)) {
 			return;
 		}
 		
-		// Check if migration already ran (column has new enum values)
-		try {
-			$columnInfo = DB::connection($connection)
-				->select("SELECT column_type FROM information_schema.columns WHERE table_schema = 'public' AND table_name = ? AND column_name = 'priority'", [$tableName]);
-			
-			if (!empty($columnInfo) && str_contains($columnInfo[0]->column_type ?? '', 'urgent')) {
-				return; // Already migrated
+		// Update existing values to new naming convention
+		$connection->table($tableName)->where('priority', 'medium')->update(['priority' => 'normal']);
+		$connection->table($tableName)->where('priority', 'high')->update(['priority' => 'urgent']);
+
+		$driver = $connection->getDriverName();
+		$grammar = $connection->getQueryGrammar();
+		$wrappedTable = $grammar->wrapTable($tableName);
+
+		if ($driver === 'pgsql') {
+			$constraintName = $tableName.'_priority_check';
+			$connection->statement("ALTER TABLE {$wrappedTable} DROP CONSTRAINT IF EXISTS {$constraintName}");
+			$connection->statement("ALTER TABLE {$wrappedTable} ALTER COLUMN priority TYPE TEXT");
+			$connection->statement("ALTER TABLE {$wrappedTable} ALTER COLUMN priority SET DEFAULT 'normal'");
+			$connection->statement("ALTER TABLE {$wrappedTable} ADD CONSTRAINT {$constraintName} CHECK (priority IN ('low','normal','urgent'))");
+		} elseif (in_array($driver, ['mysql', 'mariadb'], true)) {
+			$connection->statement("ALTER TABLE {$wrappedTable} MODIFY COLUMN priority ENUM('low','normal','urgent') NOT NULL DEFAULT 'normal'");
+		} else {
+			try {
+				$schema->table($tableName, function (Blueprint $table) {
+					$table->string('priority')->default('normal')->change();
+				});
+			} catch (\Throwable $throwable) {
+				// SQLite cannot easily modify column defaults; ignore.
 			}
-		} catch (\Exception $e) {
-			// If check fails, proceed with migration
 		}
-		
-		// Add a temporary column if it doesn't exist
-		if (!Schema::connection($connection)->hasColumn($tableName, 'priority_temp')) {
-			Schema::connection($connection)->table($tableName, function (Blueprint $table) {
-				$table->string('priority_temp')->nullable();
-			});
-		}
-		
-		// Update existing priority values to new mapping
-		DB::connection($connection)->table($tableName)->where('priority', 'medium')->update(['priority_temp' => 'normal']);
-		DB::connection($connection)->table($tableName)->where('priority', 'high')->update(['priority_temp' => 'urgent']);
-		DB::connection($connection)->table($tableName)->where('priority', 'low')->update(['priority_temp' => 'low']);
-		
-		// Drop the old priority column and recreate with new enum
-		Schema::connection($connection)->table($tableName, function (Blueprint $table) {
-			$table->dropColumn('priority');
-		});
-		
-		Schema::connection($connection)->table($tableName, function (Blueprint $table) {
-			$table->enum('priority', ['low', 'normal', 'urgent'])->default('normal')->after('deadline');
-		});
-		
-		// Copy data back using individual updates (works reliably with PostgreSQL enums)
-		DB::connection($connection)->table($tableName)->whereNotNull('priority_temp')->chunkById(100, function ($rows) use ($connection, $tableName) {
-			foreach ($rows as $row) {
-				DB::connection($connection)->table($tableName)
-					->where('id', $row->id)
-					->update(['priority' => $row->priority_temp]);
-			}
-		});
-		
-		Schema::connection($connection)->table($tableName, function (Blueprint $table) {
-			$table->dropColumn('priority_temp');
-		});
 	}
 
 	/**
@@ -81,24 +69,39 @@ return new class extends Migration
 	 */
 	public function down(): void
 	{
-		$connection = $this->getConnectionName();
-		$isGuestConnection = in_array($connection, ['guest_sqlite', 'guest_pgsql']);
-		$tableName = $isGuestConnection ? 'guest_tasks' : 'tasks';
-		
-		if (!Schema::connection($connection)->hasTable($tableName)) {
+		$connectionName = $this->connectionName();
+		$connection = DB::connection($connectionName);
+		$schema = Schema::connection($connectionName);
+		$tableName = $this->tableName($connectionName);
+
+		if (!$schema->hasTable($tableName)) {
 			return;
 		}
-		
-		// Reverse the changes: normal -> medium, urgent -> high
-		DB::connection($connection)->table($tableName)->where('priority', 'normal')->update(['priority' => 'medium']);
-		DB::connection($connection)->table($tableName)->where('priority', 'urgent')->update(['priority' => 'high']);
-		
-		Schema::connection($connection)->table($tableName, function (Blueprint $table) {
-			$table->dropColumn('priority');
-		});
-		
-		Schema::connection($connection)->table($tableName, function (Blueprint $table) {
-			$table->enum('priority', ['low', 'medium', 'high'])->default('medium')->after('deadline');
-		});
+
+		// Revert data changes
+		$connection->table($tableName)->where('priority', 'normal')->update(['priority' => 'medium']);
+		$connection->table($tableName)->where('priority', 'urgent')->update(['priority' => 'high']);
+
+		$driver = $connection->getDriverName();
+		$grammar = $connection->getQueryGrammar();
+		$wrappedTable = $grammar->wrapTable($tableName);
+
+		if ($driver === 'pgsql') {
+			$constraintName = $tableName.'_priority_check';
+			$connection->statement("ALTER TABLE {$wrappedTable} DROP CONSTRAINT IF EXISTS {$constraintName}");
+			$connection->statement("ALTER TABLE {$wrappedTable} ALTER COLUMN priority TYPE TEXT");
+			$connection->statement("ALTER TABLE {$wrappedTable} ALTER COLUMN priority SET DEFAULT 'medium'");
+			$connection->statement("ALTER TABLE {$wrappedTable} ADD CONSTRAINT {$constraintName} CHECK (priority IN ('low','medium','high'))");
+		} elseif (in_array($driver, ['mysql', 'mariadb'], true)) {
+			$connection->statement("ALTER TABLE {$wrappedTable} MODIFY COLUMN priority ENUM('low','medium','high') NOT NULL DEFAULT 'medium'");
+		} else {
+			try {
+				$schema->table($tableName, function (Blueprint $table) {
+					$table->string('priority')->default('medium')->change();
+				});
+			} catch (\Throwable $throwable) {
+				// Ignore for SQLite
+			}
+		}
 	}
 };
