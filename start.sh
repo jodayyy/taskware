@@ -13,10 +13,12 @@ else
     php artisan migrate --database=guest_sqlite --force --no-interaction
 fi
 
-# Cache configuration
+# Clear all caches first to ensure fresh component registration
+php artisan optimize:clear
+
+# Cache configuration (this will re-register components via AppServiceProvider)
 php artisan config:cache
 php artisan route:cache
-php artisan view:clear
 
 # Start PHP-FPM in the background
 php-fpm -D

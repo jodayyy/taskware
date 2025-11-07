@@ -34,7 +34,8 @@ RUN composer install --no-dev --optimize-autoloader --no-interaction --prefer-di
 # Install npm dependencies (including dev dependencies needed for build)
 RUN npm ci
 
-# Build frontend assets
+# Build frontend assets in production mode
+ENV NODE_ENV=production
 RUN npm run build
 
 # Clean up node_modules to save space (optional)
@@ -45,7 +46,9 @@ RUN mkdir -p storage/framework/{sessions,views,cache} \
     && mkdir -p storage/logs \
     && mkdir -p bootstrap/cache \
     && chmod -R 775 storage bootstrap/cache \
-    && chown -R www-data:www-data storage bootstrap/cache
+    && chown -R www-data:www-data storage bootstrap/cache \
+    && chmod -R 755 public/build \
+    && chown -R www-data:www-data public/build
 
 # Configure Nginx
 RUN rm /etc/nginx/http.d/default.conf

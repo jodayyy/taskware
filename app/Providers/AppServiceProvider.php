@@ -39,11 +39,22 @@ class AppServiceProvider extends ServiceProvider
 	{
 		Paginator::useTailwind();
 
-		Blade::anonymousComponentPath(resource_path('views/components/icons'), 'icons');
-		Blade::anonymousComponentPath(resource_path('views/components/form'), 'form');
-		Blade::anonymousComponentPath(resource_path('views/components/navigation'), 'navigation');
-		Blade::anonymousComponentPath(resource_path('views/components/layout'), 'layout');
-		Blade::anonymousComponentPath(resource_path('views/components/features'), 'features');
+		// Register anonymous component paths with proper namespace
+		// Use base_path to ensure correct path resolution in all environments
+		$basePath = base_path('resources/views/components');
+		$componentPaths = [
+			'icons' => $basePath . '/icons',
+			'form' => $basePath . '/form',
+			'navigation' => $basePath . '/navigation',
+			'layout' => $basePath . '/layout',
+			'features' => $basePath . '/features',
+		];
+
+		foreach ($componentPaths as $namespace => $path) {
+			if (is_dir($path)) {
+				Blade::anonymousComponentPath($path, $namespace);
+			}
+		}
 
 		RateLimiter::for('login', function ($request) {
 			return [
