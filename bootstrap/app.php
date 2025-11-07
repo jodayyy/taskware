@@ -14,6 +14,9 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->alias([
             'auth.guard' => \App\Http\Middleware\AuthGuard::class,
         ]);
+        
+        // Trust all proxies (needed for Render and other load balancers)
+        $middleware->trustProxies(at: '*');
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         //

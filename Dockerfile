@@ -28,18 +28,24 @@ WORKDIR /var/www/html
 # Copy application files
 COPY . .
 
+# Remove any existing build artifacts to ensure fresh build
+RUN rm -rf public/build public/hot
+
 # Install dependencies
 RUN composer install --no-dev --optimize-autoloader --no-interaction --prefer-dist
 
 # Install npm dependencies (including dev dependencies needed for build)
 RUN npm ci
 
-# Build frontend assets in production mode
-ENV NODE_ENV=production
+# Build frontend assets
 RUN npm run build
 
+# Verify build output exists
+RUN ls -la public/build/ && test -f public/build/manifest.json || (echo "Build failed - manifest.json not found" && exit 1) && \
+    test -d public/build/assets || (echo "Build failed - assets directory not found" && exit 1)
+
 # Clean up node_modules to save space (optional)
-RUN rm -rf node_modules && npm ci --omit=dev
+RUN rm -rf node_modules
 
 # Create necessary directories and set permissions
 RUN mkdir -p storage/framework/{sessions,views,cache} \

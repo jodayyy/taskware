@@ -5,11 +5,19 @@ set -o errexit
 echo "==> Installing Composer dependencies..."
 composer install --no-dev --optimize-autoloader --no-interaction --prefer-dist
 
-echo "==> Installing Node.js dependencies..."
-npm ci --omit=dev
+echo "==> Installing Node.js dependencies (including dev dependencies for build)..."
+npm ci
 
 echo "==> Building frontend assets..."
 npm run build
+
+# Verify build succeeded
+if [ ! -f "public/build/manifest.json" ]; then
+    echo "ERROR: Build failed - manifest.json not found"
+    exit 1
+fi
+
+echo "==> Build verification passed"
 
 echo "==> Setting up storage directories..."
 mkdir -p storage/framework/{sessions,views,cache}
