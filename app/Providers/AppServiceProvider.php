@@ -14,6 +14,7 @@ use App\Repositories\TaskRepository;
 use App\Repositories\TaskRepositoryInterface;
 use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Pagination\Paginator;
+use Illuminate\Support\Facades\Blade;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\ServiceProvider;
 
@@ -37,6 +38,12 @@ class AppServiceProvider extends ServiceProvider
 	public function boot(): void
 	{
 		Paginator::useTailwind();
+
+		Blade::anonymousComponentPath(resource_path('views/components/icons'), 'icons');
+		Blade::anonymousComponentPath(resource_path('views/components/form'), 'form');
+		Blade::anonymousComponentPath(resource_path('views/components/navigation'), 'navigation');
+		Blade::anonymousComponentPath(resource_path('views/components/layout'), 'layout');
+		Blade::anonymousComponentPath(resource_path('views/components/features'), 'features');
 
 		RateLimiter::for('login', function ($request) {
 			return [
