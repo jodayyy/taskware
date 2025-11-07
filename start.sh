@@ -16,7 +16,7 @@ fi
 # Cache configuration
 php artisan config:cache
 php artisan route:cache
-php artisan view:cache
+php artisan view:clear
 
 # Start PHP-FPM in the background
 php-fpm -D
