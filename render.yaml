@@ -1,0 +1,84 @@
+services:
+  # Web Service
+  - type: web
+    name: taskware
+    runtime: php
+    region: oregon
+    plan: free
+    buildCommand: composer install --no-dev --optimize-autoloader && npm ci && npm run build && php artisan config:cache && php artisan route:cache && php artisan view:cache
+    startCommand: php artisan serve --host=0.0.0.0 --port=$PORT
+    envVars:
+      - key: APP_NAME
+        value: Taskware
+      - key: APP_ENV
+        value: production
+      - key: APP_DEBUG
+        value: false
+      - key: LOG_CHANNEL
+        value: stack
+      - key: LOG_LEVEL
+        value: error
+      - key: DB_CONNECTION
+        value: pgsql
+      - key: DB_PORT
+        value: 5432
+      - key: GUEST_DB_CONNECTION
+        value: pgsql
+      - key: GUEST_DB_PORT
+        value: 5432
+      - key: SESSION_DRIVER
+        value: database
+      - key: SESSION_LIFETIME
+        value: 120
+      - key: CACHE_DRIVER
+        value: file
+      - key: QUEUE_CONNECTION
+        value: sync
+      # These should be set from the database service connection strings
+      # Add them manually in Render dashboard after creating databases
+      - key: DB_HOST
+        fromDatabase:
+          name: taskware-db
+          property: host
+      - key: DB_DATABASE
+        fromDatabase:
+          name: taskware-db
+          property: database
+      - key: DB_USERNAME
+        fromDatabase:
+          name: taskware-db
+          property: user
+      - key: DB_PASSWORD
+        fromDatabase:
+          name: taskware-db
+          property: password
+      - key: GUEST_DB_HOST
+        fromDatabase:
+          name: taskware-guest-db
+          property: host
+      - key: GUEST_DB_DATABASE
+        fromDatabase:
+          name: taskware-guest-db
+          property: database
+      - key: GUEST_DB_USERNAME
+        fromDatabase:
+          name: taskware-guest-db
+          property: user
+      - key: GUEST_DB_PASSWORD
+        fromDatabase:
+          name: taskware-guest-db
+          property: password
+
+databases:
+  # Main Database
+  - name: taskware-db
+    databaseName: taskware
+    user: taskware_user
+    plan: free
+    
+  # Guest Database
+  - name: taskware-guest-db
+    databaseName: taskware_guest
+    user: taskware_guest_user
+    plan: free
+

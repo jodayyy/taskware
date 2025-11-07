@@ -44,9 +44,20 @@ return [
         ],
 
         'guest_sqlite' => [
-            'driver' => 'sqlite',
-            'database' => database_path('guest_database.sqlite'),
+            'driver' => env('GUEST_DB_CONNECTION', 'sqlite') === 'pgsql' ? 'pgsql' : 'sqlite',
+            'url' => env('GUEST_DATABASE_URL'),
+            'database' => env('GUEST_DB_CONNECTION', 'sqlite') === 'pgsql'
+                ? env('GUEST_DB_DATABASE', 'guest_laravel')
+                : database_path('guest_database.sqlite'),
+            'host' => env('GUEST_DB_HOST', '127.0.0.1'),
+            'port' => env('GUEST_DB_PORT', '5432'),
+            'username' => env('GUEST_DB_USERNAME'),
+            'password' => env('GUEST_DB_PASSWORD'),
+            'charset' => env('GUEST_DB_CHARSET', 'utf8'),
             'prefix' => '',
+            'prefix_indexes' => true,
+            'search_path' => 'public',
+            'sslmode' => 'prefer',
             'foreign_key_constraints' => env('DB_FOREIGN_KEYS', true),
             'busy_timeout' => null,
             'journal_mode' => null,
