@@ -48,8 +48,8 @@ RUN ls -la public/build/ && test -f public/build/manifest.json || (echo "Build f
 RUN rm -rf node_modules
 
 # Verify component files are present
-RUN ls -la resources/views/components/icons/ || echo "WARNING: Icons directory not found" && \
-    test -f resources/views/components/icons/plus.blade.php || echo "WARNING: plus.blade.php not found"
+RUN ls -la resources/views/components/icons/ || (echo "ERROR: Icons directory not found" && exit 1) \
+    && test -f resources/views/components/icons/plus.blade.php || (echo "ERROR: plus.blade.php not found" && exit 1)
 
 # Create necessary directories and set permissions
 RUN mkdir -p storage/framework/{sessions,views,cache} \

@@ -19,6 +19,7 @@ php artisan optimize:clear
 # Verify component directories exist
 echo "Verifying component directories..."
 ls -la resources/views/components/ || echo "WARNING: components directory not found"
+ls -la resources/views/components/icons/ || echo "WARNING: icons directory not accessible"
 
 # Cache configuration (this will re-register components via AppServiceProvider)
 php artisan config:cache
