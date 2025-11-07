@@ -10,7 +10,7 @@ return new class extends Migration
 	/**
 	 * Get the connection name for this migration.
 	 */
-	private function getConnection(): ?string
+	protected function getConnectionName(): ?string
 	{
 		return $this->connection ?? null;
 	}
@@ -20,7 +20,7 @@ return new class extends Migration
 	 */
 	public function up(): void
 	{
-		$connection = $this->getConnection();
+		$connection = $this->getConnectionName();
 		$isGuestConnection = in_array($connection, ['guest_sqlite', 'guest_pgsql']);
 		$tableName = $isGuestConnection ? 'guest_tasks' : 'tasks';
 		
@@ -81,7 +81,7 @@ return new class extends Migration
 	 */
 	public function down(): void
 	{
-		$connection = $this->getConnection();
+		$connection = $this->getConnectionName();
 		$isGuestConnection = in_array($connection, ['guest_sqlite', 'guest_pgsql']);
 		$tableName = $isGuestConnection ? 'guest_tasks' : 'tasks';
 		
