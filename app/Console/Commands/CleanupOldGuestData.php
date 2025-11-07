@@ -15,21 +15,30 @@ class CleanupOldGuestData extends Command
 	{
 		$days = (int) $this->option('days');
 		$threshold = now()->subDays($days);
+		$connection = env('GUEST_DB_CONNECTION', 'guest_sqlite');
 
 		// Find old guest_ids
-		$oldGuestIds = DB::connection('guest_sqlite')
+		$oldGuestIds = DB::connection($connection)
 			->table('guest_users')
 			->where('updated_at', '<', $threshold)
 			->pluck('guest_id')
 			->all();
 
 		if (!empty($oldGuestIds)) {
-			DB::connection('guest_sqlite')
+			// Delete guest projects first (foreign key constraints)
+			DB::connection($connection)
+				->table('guest_projects')
+				->whereIn('guest_id', $oldGuestIds)
+				->delete();
+
+			// Delete guest tasks
+			DB::connection($connection)
 				->table('guest_tasks')
 				->whereIn('guest_id', $oldGuestIds)
 				->delete();
 
-			DB::connection('guest_sqlite')
+			// Finally delete guest users
+			DB::connection($connection)
 				->table('guest_users')
 				->whereIn('guest_id', $oldGuestIds)
 				->delete();

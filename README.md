@@ -78,24 +78,76 @@ Taskware is a modern task management application built with Laravel 11 to help y
 
 ## Deployment
 
+### Deploy to Render
+
+Taskware includes configuration files for easy deployment to Render.
+
+#### Quick Deploy
+
+1. **Create a Render account** at [render.com](https://render.com)
+
+2. **Create a new Web Service**:
+   - Connect your GitHub/GitLab repository
+   - Render will automatically detect the `render.yaml` configuration
+
+3. **Create a PostgreSQL database**:
+   - Name it `taskware-db` (or update `render.yaml` to match)
+   - The database credentials will be automatically linked to your web service
+
+4. **Set the APP_KEY environment variable**:
+   - Generate a key locally: `php artisan key:generate --show`
+   - Add it to your Render environment variables as `APP_KEY`
+
+5. **Deploy**: Render will automatically build and deploy your application
+
+#### Environment Variables
+
+The following environment variables are automatically configured in `render.yaml`:
+- `APP_NAME`, `APP_ENV`, `APP_DEBUG`
+- `DB_CONNECTION`, `DB_HOST`, `DB_PORT`, `DB_DATABASE`, `DB_USERNAME`, `DB_PASSWORD`
+- `CACHE_STORE`, `SESSION_DRIVER`, `QUEUE_CONNECTION`
+- `LOG_CHANNEL`, `LOG_LEVEL`
+
+#### Manual Deployment Steps
+
+If you prefer manual deployment:
+
 1. Install production dependencies:
    ```bash
    composer install --optimize-autoloader --no-dev
-   npm ci --production
+   npm ci --omit=dev
    npm run build
    ```
 
-2. Optimize the application:
+2. Run migrations:
+   ```bash
+   php artisan migrate --force
+   ```
+
+3. Optimize the application:
    ```bash
    php artisan config:cache
    php artisan route:cache
    php artisan view:cache
    ```
 
-3. Set permissions:
+4. Set permissions:
    ```bash
-   chmod -R 755 storage bootstrap/cache
+   chmod -R 775 storage bootstrap/cache
    ```
+
+### Deployment Files
+
+- `render.yaml` - Render infrastructure configuration
+- `Dockerfile` - Container configuration
+- `nginx.conf` - Nginx web server configuration
+- `build.sh` - Build script for deployment
+- `start.sh` - Application startup script
+- `.renderignore` - Files to exclude from deployment
+- `DEPLOYMENT.md` - Comprehensive deployment guide
+- `RENDER_SETUP.md` - Quick reference for deployment setup
+
+For detailed deployment instructions, see [DEPLOYMENT.md](DEPLOYMENT.md) or [RENDER_SETUP.md](RENDER_SETUP.md)
 
 ## License
 

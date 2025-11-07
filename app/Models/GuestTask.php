@@ -12,11 +12,14 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 class GuestTask extends Model
 {
 	/**
-	 * The connection name for the model.
+	 * Get the connection name for the model.
 	 *
-	 * @var string|null
+	 * @return string
 	 */
-	protected $connection = 'guest_sqlite';
+	public function getConnectionName()
+	{
+		return env('GUEST_DB_CONNECTION', 'guest_sqlite');
+	}
 
 	/**
 	 * The table associated with the model.

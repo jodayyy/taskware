@@ -1,0 +1,46 @@
+# Dependencies
+/node_modules
+/vendor
+
+# Development files
+/tests
+/.phpunit.cache
+/phpunit.xml
+
+# Environment files
+/.env
+/.env.example
+
+# Storage
+/storage/*.key
+/storage/logs/*
+!/storage/logs/.gitignore
+
+# Build artifacts
+/public/hot
+/public/storage
+
+# IDE
+/.idea
+/.vscode
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Git
+/.git
+/.gitignore
+/.gitattributes
+
+# Documentation
+/README.md
+/LICENSE
+/CONTRIBUTING.md
+
+# CI/CD
+/.github
+

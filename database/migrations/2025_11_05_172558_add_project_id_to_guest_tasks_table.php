@@ -6,14 +6,19 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration {
 	/**
-	 * The database connection to use for the migration.
+	 * Get the database connection to use for the migration.
 	 */
-	protected $connection = 'guest_sqlite';
+	private function getGuestConnection(): string
+	{
+		return env('GUEST_DB_CONNECTION', 'guest_sqlite');
+	}
 
 	public function up(): void
 	{
-		if (!Schema::connection('guest_sqlite')->hasColumn('guest_tasks', 'project_id')) {
-			Schema::connection('guest_sqlite')->table('guest_tasks', function (Blueprint $table) {
+		$connection = $this->getGuestConnection();
+		
+		if (!Schema::connection($connection)->hasColumn('guest_tasks', 'project_id')) {
+			Schema::connection($connection)->table('guest_tasks', function (Blueprint $table) {
 				$table->unsignedBigInteger('project_id')->nullable()->after('guest_id');
 				$table->foreign('project_id')->references('id')->on('guest_projects')->onDelete('set null');
 			});
@@ -22,7 +27,8 @@ return new class extends Migration {
 
 	public function down(): void
 	{
-		Schema::connection('guest_sqlite')->table('guest_tasks', function (Blueprint $table) {
+		$connection = $this->getGuestConnection();
+		Schema::connection($connection)->table('guest_tasks', function (Blueprint $table) {
 			$table->dropForeign(['project_id']);
 			$table->dropColumn('project_id');
 		});

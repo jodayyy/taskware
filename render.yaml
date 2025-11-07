@@ -1,0 +1,158 @@
+services:
+  # Web Service
+  - type: web
+    name: taskware
+    runtime: docker
+    plan: free
+    region: oregon
+    dockerfilePath: ./Dockerfile
+    dockerContext: .
+    envVars:
+      - key: APP_NAME
+        value: Taskware
+      - key: APP_ENV
+        value: production
+      - key: APP_DEBUG
+        value: false
+      - key: APP_URL
+        sync: false
+      - key: APP_KEY
+        generateValue: true
+      - key: LOG_CHANNEL
+        value: stderr
+      - key: LOG_LEVEL
+        value: info
+      - key: LOG_STDERR_FORMATTER
+        value: Monolog\Formatter\JsonFormatter
+      - key: DB_CONNECTION
+        value: pgsql
+      - key: DB_HOST
+        fromDatabase:
+          name: taskware-db
+          property: host
+      - key: DB_PORT
+        fromDatabase:
+          name: taskware-db
+          property: port
+      - key: DB_DATABASE
+        fromDatabase:
+          name: taskware-db
+          property: database
+      - key: DB_USERNAME
+        fromDatabase:
+          name: taskware-db
+          property: user
+      - key: DB_PASSWORD
+        fromDatabase:
+          name: taskware-db
+          property: password
+      - key: CACHE_STORE
+        value: database
+      - key: SESSION_DRIVER
+        value: database
+      - key: SESSION_LIFETIME
+        value: 120
+      - key: QUEUE_CONNECTION
+        value: database
+      - key: FILESYSTEM_DISK
+        value: local
+      - key: BROADCAST_CONNECTION
+        value: log
+      - key: MAIL_MAILER
+        value: log
+      - key: GUEST_DB_CONNECTION
+        value: guest_pgsql
+      - key: GUEST_DB_HOST
+        fromDatabase:
+          name: taskware-db
+          property: host
+      - key: GUEST_DB_PORT
+        fromDatabase:
+          name: taskware-db
+          property: port
+      - key: GUEST_DB_DATABASE
+        fromDatabase:
+          name: taskware-db
+          property: database
+      - key: GUEST_DB_USERNAME
+        fromDatabase:
+          name: taskware-db
+          property: user
+      - key: GUEST_DB_PASSWORD
+        fromDatabase:
+          name: taskware-db
+          property: password
+    healthCheckPath: /
+    autoDeploy: true
+
+  # Cron Jobs (for scheduled tasks)
+  - type: cron
+    name: taskware-scheduler
+    runtime: docker
+    plan: free
+    region: oregon
+    dockerfilePath: ./Dockerfile
+    dockerContext: .
+    schedule: "0 */1 * * *"  # Run every hour
+    envVars:
+      - key: APP_NAME
+        value: Taskware
+      - key: APP_ENV
+        value: production
+      - key: APP_DEBUG
+        value: false
+      - key: APP_KEY
+        sync: false
+      - key: DB_CONNECTION
+        value: pgsql
+      - key: DB_HOST
+        fromDatabase:
+          name: taskware-db
+          property: host
+      - key: DB_PORT
+        fromDatabase:
+          name: taskware-db
+          property: port
+      - key: DB_DATABASE
+        fromDatabase:
+          name: taskware-db
+          property: database
+      - key: DB_USERNAME
+        fromDatabase:
+          name: taskware-db
+          property: user
+      - key: DB_PASSWORD
+        fromDatabase:
+          name: taskware-db
+          property: password
+      - key: GUEST_DB_CONNECTION
+        value: guest_pgsql
+      - key: GUEST_DB_HOST
+        fromDatabase:
+          name: taskware-db
+          property: host
+      - key: GUEST_DB_PORT
+        fromDatabase:
+          name: taskware-db
+          property: port
+      - key: GUEST_DB_DATABASE
+        fromDatabase:
+          name: taskware-db
+          property: database
+      - key: GUEST_DB_USERNAME
+        fromDatabase:
+          name: taskware-db
+          property: user
+      - key: GUEST_DB_PASSWORD
+        fromDatabase:
+          name: taskware-db
+          property: password
+    command: php artisan schedule:run
+
+  # PostgreSQL Database
+databases:
+  - name: taskware-db
+    databaseName: taskware
+    plan: free
+    region: oregon
+

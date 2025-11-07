@@ -6,14 +6,19 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration {
 	/**
-	 * The database connection to use for the migration.
+	 * Get the database connection to use for the migration.
 	 */
-	protected $connection = 'guest_sqlite';
+	private function getGuestConnection(): string
+	{
+		return env('GUEST_DB_CONNECTION', 'guest_sqlite');
+	}
 
 	public function up(): void
 	{
-		if (!Schema::connection('guest_sqlite')->hasTable('guest_users')) {
-			Schema::connection('guest_sqlite')->create('guest_users', function (Blueprint $table) {
+		$connection = $this->getGuestConnection();
+		
+		if (!Schema::connection($connection)->hasTable('guest_users')) {
+			Schema::connection($connection)->create('guest_users', function (Blueprint $table) {
 				$table->id();
 				$table->string('guest_id')->unique();
 				$table->string('username')->default('Guest');
@@ -24,7 +29,8 @@ return new class extends Migration {
 
 	public function down(): void
 	{
-		Schema::connection('guest_sqlite')->dropIfExists('guest_users');
+		$connection = $this->getGuestConnection();
+		Schema::connection($connection)->dropIfExists('guest_users');
 	}
 };
 
