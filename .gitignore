@@ -68,6 +68,8 @@ database/*.sqlite-journal
 .DS_Store?
 ehthumbs.db
 Icon?
+!resources/views/components/icons/
+!resources/views/components/icons/**
 Thumbs.db
 *.tmp
 
