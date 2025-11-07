@@ -30,8 +30,15 @@ COPY . .
 
 # Install dependencies
 RUN composer install --no-dev --optimize-autoloader --no-interaction --prefer-dist
-RUN npm ci --omit=dev
+
+# Install npm dependencies (including dev dependencies needed for build)
+RUN npm ci
+
+# Build frontend assets
 RUN npm run build
+
+# Clean up node_modules to save space (optional)
+RUN rm -rf node_modules && npm ci --omit=dev
 
 # Create necessary directories and set permissions
 RUN mkdir -p storage/framework/{sessions,views,cache} \
