@@ -33,8 +33,54 @@ ls -la /var/www/html/storage/logs/ || true
 echo "Bootstrap cache permissions:"
 ls -la /var/www/html/bootstrap/cache/ || true
 
-# Generate application key if not set (will fail gracefully if already set)
-php artisan key:generate --force || true
+# Ensure .env file exists (Laravel needs this to read APP_KEY)
+if [ ! -f /var/www/html/.env ]; then
+    echo "Creating .env file..."
+    touch /var/www/html/.env
+    chown www-data:www-data /var/www/html/.env
+    chmod 644 /var/www/html/.env
+fi
+
+# Generate and set APP_KEY if not already set
+if [ -z "$APP_KEY" ]; then
+    echo "APP_KEY not set, generating new key..."
+    # Generate a base64 encoded 32-byte key (Laravel format)
+    GENERATED_KEY=$(php -r "echo 'base64:'.base64_encode(random_bytes(32));")
+    export APP_KEY="$GENERATED_KEY"
+    echo "Generated APP_KEY"
+    
+    # Write to .env file (Laravel reads from here)
+    if grep -q "APP_KEY=" /var/www/html/.env; then
+        sed -i "s|APP_KEY=.*|APP_KEY=$GENERATED_KEY|" /var/www/html/.env
+    else
+        echo "APP_KEY=$GENERATED_KEY" >> /var/www/html/.env
+    fi
+    chown www-data:www-data /var/www/html/.env || true
+    chmod 644 /var/www/html/.env || true
+    echo "APP_KEY written to .env file"
+else
+    echo "APP_KEY already set from environment"
+    # Ensure it's also in .env file (Laravel reads from here)
+    if grep -q "APP_KEY=" /var/www/html/.env; then
+        sed -i "s|APP_KEY=.*|APP_KEY=$APP_KEY|" /var/www/html/.env
+    else
+        echo "APP_KEY=$APP_KEY" >> /var/www/html/.env
+    fi
+    chown www-data:www-data /var/www/html/.env || true
+    chmod 644 /var/www/html/.env || true
+fi
+
+# Clear config cache to ensure new key is loaded
+php artisan config:clear || true
+
+# Verify APP_KEY is in .env file
+if ! grep -q "APP_KEY=base64:" /var/www/html/.env; then
+    echo "ERROR: APP_KEY is not properly set in .env file!"
+    echo "Current .env APP_KEY line:"
+    grep "APP_KEY" /var/www/html/.env || echo "APP_KEY line not found"
+    exit 1
+fi
+echo "APP_KEY verified in .env file"
 
 # Cache configuration (will create cache files with proper permissions due to 777 on directories)
 php artisan config:cache || true
