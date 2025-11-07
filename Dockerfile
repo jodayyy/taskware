@@ -47,6 +47,10 @@ RUN ls -la public/build/ && test -f public/build/manifest.json || (echo "Build f
 # Clean up node_modules to save space (optional)
 RUN rm -rf node_modules
 
+# Verify component files are present
+RUN ls -la resources/views/components/icons/ || echo "WARNING: Icons directory not found" && \
+    test -f resources/views/components/icons/plus.blade.php || echo "WARNING: plus.blade.php not found"
+
 # Create necessary directories and set permissions
 RUN mkdir -p storage/framework/{sessions,views,cache} \
     && mkdir -p storage/logs \
@@ -54,7 +58,9 @@ RUN mkdir -p storage/framework/{sessions,views,cache} \
     && chmod -R 775 storage bootstrap/cache \
     && chown -R www-data:www-data storage bootstrap/cache \
     && chmod -R 755 public/build \
-    && chown -R www-data:www-data public/build
+    && chown -R www-data:www-data public/build \
+    && chmod -R 755 resources/views \
+    && chown -R www-data:www-data resources/views
 
 # Configure Nginx
 RUN rm /etc/nginx/http.d/default.conf

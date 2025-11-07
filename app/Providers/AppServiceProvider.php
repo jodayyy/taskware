@@ -51,7 +51,12 @@ class AppServiceProvider extends ServiceProvider
 		];
 
 		foreach ($componentPaths as $namespace => $path) {
-			if (is_dir($path)) {
+			// Use realpath to resolve any symlink or path issues
+			$resolvedPath = realpath($path);
+			if ($resolvedPath && is_dir($resolvedPath)) {
+				Blade::anonymousComponentPath($resolvedPath, $namespace);
+			} elseif (is_dir($path)) {
+				// Fallback to original path if realpath fails
 				Blade::anonymousComponentPath($path, $namespace);
 			}
 		}
