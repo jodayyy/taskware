@@ -9,13 +9,13 @@ class CleanupOldGuestData extends Command
 {
 	protected $signature = 'guest:cleanup {--days=30 : Delete data older than N days}';
 
-	protected $description = 'Delete old guest users and their tasks from guest_sqlite';
+	protected $description = 'Delete old guest users and their tasks from the configured guest database';
 
 	public function handle(): int
 	{
 		$days = (int) $this->option('days');
 		$threshold = now()->subDays($days);
-		$connection = env('GUEST_DB_CONNECTION', 'guest_sqlite');
+		$connection = config('database.guest_connection', 'guest_sqlite');
 
 		// Find old guest_ids
 		$oldGuestIds = DB::connection($connection)

@@ -10,7 +10,7 @@ return new class extends Migration {
 	 */
 	private function getGuestConnection(): string
 	{
-		return env('GUEST_DB_CONNECTION', 'guest_sqlite');
+		return config('database.guest_connection', 'guest_sqlite');
 	}
 
 	public function up(): void

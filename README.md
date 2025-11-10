@@ -53,12 +53,17 @@ Taskware is a modern task management application built with Laravel 11 to help y
    php artisan migrate
    ```
 
-6. Build frontend assets:
+6. Run guest database migrations (defaults to SQLite for local development):
+   ```bash
+   php artisan migrate --database=${GUEST_DB_CONNECTION:-guest_sqlite}
+   ```
+
+7. Build frontend assets:
    ```bash
    npm run build
    ```
 
-7. Start the server:
+8. Start the server:
    ```bash
    php artisan serve
    ```
@@ -122,6 +127,7 @@ If you prefer manual deployment:
 2. Run migrations:
    ```bash
    php artisan migrate --force
+   php artisan migrate --database=${GUEST_DB_CONNECTION:-guest_sqlite} --force
    ```
 
 3. Optimize the application:

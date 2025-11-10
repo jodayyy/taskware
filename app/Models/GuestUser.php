@@ -14,10 +14,10 @@ class GuestUser extends Model
 	 *
 	 * @return string
 	 */
-	public function getConnectionName()
-	{
-		return env('GUEST_DB_CONNECTION', 'guest_sqlite');
-	}
+    public function getConnectionName()
+    {
+        return config('database.guest_connection', 'guest_sqlite');
+    }
 
 	/**
 	 * The table associated with the model.

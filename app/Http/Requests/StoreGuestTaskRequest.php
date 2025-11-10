@@ -52,6 +52,8 @@ class StoreGuestTaskRequest extends FormRequest
 	{
 		$guestId = session('guest_id');
 		
+		$guestConnection = config('database.guest_connection', 'guest_sqlite');
+
 		return [
 			'title' => 'required|string|max:255',
 			'description' => 'required|string',
@@ -60,10 +62,10 @@ class StoreGuestTaskRequest extends FormRequest
 			'notes' => 'nullable|string',
 			'project_id' => [
 				'nullable',
-				function ($attribute, $value, $fail) use ($guestId) {
+				function ($attribute, $value, $fail) use ($guestId, $guestConnection) {
 					if ($value !== null && $value !== '') {
 						$projectId = is_numeric($value) ? (int) $value : $value;
-						$exists = DB::connection('guest_sqlite')
+						$exists = DB::connection($guestConnection)
 							->table('guest_projects')
 							->where('id', $projectId)
 							->where('guest_id', $guestId)

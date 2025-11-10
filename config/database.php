@@ -141,6 +141,8 @@ return [
 
     ],
 
+    'guest_connection' => env('GUEST_DB_CONNECTION', 'guest_sqlite'),
+
     /*
     |--------------------------------------------------------------------------
     | Migration Repository Table
