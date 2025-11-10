@@ -146,7 +146,7 @@
 										</div>
 										<!-- Progress Bar -->
 										<div class="w-full border-2 border-primary bg-primary">
-											<div class="bg-primary h-4" style="width: {{ $project->progress }}%"></div>
+											<div class="bg-secondary h-4" style="width: {{ $project->progress }}%"></div>
 										</div>
 										<div class="text-xs mt-1 text-primary">
 											{{ $project->completed_tasks_count }}/{{ $project->tasks_count }} tasks completed
